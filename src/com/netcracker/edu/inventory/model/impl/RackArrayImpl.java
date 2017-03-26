@@ -3,12 +3,24 @@ package com.netcracker.edu.inventory.model.impl;
 import com.netcracker.edu.inventory.model.Device;
 import com.netcracker.edu.inventory.model.Rack;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 public class RackArrayImpl implements Rack {
+    static protected Logger LOGGER = Logger.getLogger(RackArrayImpl.class.getName());
 
     protected Device[] arrayImpl;
 
     public RackArrayImpl(int size) {
-        this.arrayImpl = new Device[size];
+        try {
+            if (size >= 0) {
+                this.arrayImpl = new Device[size];
+            } else {
+                throw new IllegalArgumentException();
+            }
+        } catch (IllegalArgumentException e) {
+            LOGGER.log(Level.INFO, "Rack size should not be negative :" + " " + e);
+        }
     }
 
     public int getSize() {
@@ -34,12 +46,14 @@ public class RackArrayImpl implements Rack {
                 return arrayImpl[index];
             } else {
                 if (arrayImpl[index] == null) {
+                    LOGGER.log(Level.INFO, "Device not found, slot is empty 11");
                     System.err.println("Device not found, slot is empty " + ": Slot = " + index);
                 }
                 return null;
             }
         } else {
             if (index < 0 || index > arrayImpl.length) {
+                LOGGER.log(Level.INFO, "Device not found, ssssssssssss");
                 System.err.println("Device not found, slot does not exist" + ": Slot = " + index);
             }
             return null;
