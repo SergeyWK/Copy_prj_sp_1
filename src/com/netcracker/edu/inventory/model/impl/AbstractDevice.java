@@ -30,19 +30,15 @@ public abstract class AbstractDevice implements Device {
     }*/
 
     public void setIn(int in){
-        try {
-            if (in > 0 && this.in == 0) {
-                this.in = in;
-            } else {
+            if (in < 0) {
+                LOGGER.log(Level.INFO, "IN can not be negative :" );
                 throw new IllegalArgumentException();
             }
-        } catch (IllegalArgumentException e) {
-            if (in < 0) {
-                LOGGER.log(Level.INFO, "IN can not be negative :" + " " + e);
-            } else if (this.in != 0) {
-                LOGGER.log(Level.WARNING, "Inventory number can not be reset :" + "number is alredy ="+ this.in +" "+ e);
+            if(this.in == 0){
+                this.in = in;
+            } else {
+                LOGGER.warning("Inventory number can not be reset :" + "number is alredy ="+ this.in);
             }
-        }
     }
 
     public String getType() {

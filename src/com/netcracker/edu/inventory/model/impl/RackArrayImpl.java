@@ -1,5 +1,6 @@
 package com.netcracker.edu.inventory.model.impl;
 
+import com.netcracker.edu.inventory.exception.DeviceValidationException;
 import com.netcracker.edu.inventory.model.Device;
 import com.netcracker.edu.inventory.model.Rack;
 
@@ -41,7 +42,7 @@ public class RackArrayImpl implements Rack {
     }
 
     public Device getDevAtSlot(int index) {
-        if (index >= 0 && index < arrayImpl.length) {
+   /*     if (index >= 0 && index < arrayImpl.length) {
             if (arrayImpl[index] != null) {
                 return arrayImpl[index];
             } else {
@@ -57,11 +58,18 @@ public class RackArrayImpl implements Rack {
                 System.err.println("Device not found, slot does not exist" + ": Slot = " + index);
             }
             return null;
+        }*/
+        if (index < 0 || index >= arrayImpl.length) {
+            LOGGER.log(Level.INFO, "Incorrect index, corect range: 0.." + (arrayImpl.length-1));
+            throw new IndexOutOfBoundsException();
+        } else if(arrayImpl[index] != null){
+            return arrayImpl[index];
         }
+        return null;
     }
 
     public boolean insertDevToSlot(Device device, int index) {
-        if (index >= 0 && index < arrayImpl.length) {
+         /*      if (index >= 0 && index < arrayImpl.length) {
             if (arrayImpl[index] == null && device != null && device.getIn() > 0) {
                 arrayImpl[index] = device;
                 return true;
@@ -76,7 +84,21 @@ public class RackArrayImpl implements Rack {
         } else {
             System.err.println("Can't insert, slot does not exist " + ": Slot = " + index);
             return false;
-        }
+        }*/
+
+
+      if (!(index >= 0 && index < arrayImpl.length)) {
+          LOGGER.log(Level.INFO, "Incorrect index, corect range: 0.." + (arrayImpl.length-1));
+          throw new IndexOutOfBoundsException();
+      } else if(!(device != null && device.getIn() > 0)){
+          LOGGER.log(Level.INFO, "DeviceValidationException");
+          throw new DeviceValidationException();
+      }
+      if(arrayImpl[index] == null){
+          arrayImpl[index] = device;
+          return true;
+      }
+   return false;
     }
 
     public Device removeDevFromSlot(int index) {
