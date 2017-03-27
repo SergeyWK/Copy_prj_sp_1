@@ -60,9 +60,9 @@ public class RackArrayImpl implements Rack {
             return null;
         }*/
         if (index < 0 || index >= arrayImpl.length) {
-            LOGGER.log(Level.INFO, "Incorrect index, corect range: 0.." + (arrayImpl.length-1));
+            LOGGER.log(Level.INFO, "Incorrect index, corect range: 0.." + (arrayImpl.length - 1));
             throw new IndexOutOfBoundsException();
-        } else if(arrayImpl[index] != null){
+        } else if (arrayImpl[index] != null) {
             return arrayImpl[index];
         }
         return null;
@@ -87,25 +87,29 @@ public class RackArrayImpl implements Rack {
         }*/
 
 
-      if (!(index >= 0 && index < arrayImpl.length)) {
-          LOGGER.log(Level.INFO, "Incorrect index, corect range: 0.." + (arrayImpl.length-1));
-          throw new IndexOutOfBoundsException();
-      } else if(!(device != null && device.getIn() > 0)){
-          LOGGER.log(Level.INFO, "DeviceValidationException");
-          throw new DeviceValidationException();
-      }
-      if(arrayImpl[index] == null){
-          arrayImpl[index] = device;
-          return true;
-      }
-   return false;
+        if (!(index >= 0 && index < arrayImpl.length)) {
+            LOGGER.log(Level.INFO, "Incorrect index, corect range: 0.." + (arrayImpl.length - 1));
+            throw new IndexOutOfBoundsException();
+        } else if (!(device != null && device.getIn() > 0)) {
+            LOGGER.log(Level.INFO, "DeviceValidationException");
+            throw new DeviceValidationException();
+        }
+        if (arrayImpl[index] == null) {
+            arrayImpl[index] = device;
+            return true;
+        }
+        return false;
     }
 
     public Device removeDevFromSlot(int index) {
         if (index >= 0 && index < arrayImpl.length) {
-            Device removedDevice = arrayImpl[index];
-            arrayImpl[index] = null;
-            return removedDevice;
+            if (arrayImpl[index] != null) {
+                Device removedDevice = arrayImpl[index];
+                arrayImpl[index] = null;
+                return removedDevice;
+            }
+            LOGGER.log(Level.WARNING, "Can not remove from empty slot: " + index);
+            return null;
         }
         return null;
     }
