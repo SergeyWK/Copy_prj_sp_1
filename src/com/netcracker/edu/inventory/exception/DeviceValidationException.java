@@ -16,7 +16,8 @@ public class DeviceValidationException extends RuntimeException {
         this.object = object;
     }*/
 
-   public DeviceValidationException() {
+
+    public DeviceValidationException() {
         super(MESSAGE);
     }
 
@@ -25,7 +26,8 @@ public class DeviceValidationException extends RuntimeException {
     }
 
     public DeviceValidationException(String operation, Device object) {
-
+        super((operation != null ? operation : "") + ". " + MESSAGE);
+        this.object = object;
     }
 
     public Device getObject() {
@@ -33,8 +35,4 @@ public class DeviceValidationException extends RuntimeException {
     }
 
 
-
-
-
-
-}
+    }

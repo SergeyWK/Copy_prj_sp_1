@@ -21,7 +21,8 @@ public abstract class AbstractDevice implements Device {
     }
 
 
-   /* public void setIn(int in) {
+   /*  Version for PZ3
+   public void setIn(int in) {
         if (in > 0 && this.in == 0) {
             this.in = in;
         } else {
