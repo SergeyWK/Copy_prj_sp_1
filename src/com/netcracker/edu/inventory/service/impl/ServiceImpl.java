@@ -34,4 +34,24 @@ public class ServiceImpl implements Service {
             }
         }
     }
+
+    @Override
+    public void sortByProductionDate(Device[] devices) {
+
+    }
+
+    @Override
+    public void filtrateByManufacturer(Device[] devices, String manufacturer) {
+
+    }
+
+    @Override
+    public void filtrateByModel(Device[] devices, String model) {
+
+    }
+
+    @Override
+    public boolean isValidDeviceForInsertToRack(Device device) {
+        return false;
+    }
 }

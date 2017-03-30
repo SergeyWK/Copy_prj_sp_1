@@ -8,47 +8,30 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class RackArrayImpl implements Rack {
+
     static protected Logger LOGGER = Logger.getLogger(RackArrayImpl.class.getName());
 
     protected Device[] arrayImpl;
+    // private final Class clazz;
 
-     /* Old Version for pz3
-   public RackArrayImpl(int size) {
-        this.arrayImpl = new Device[size];
-    }*/
-
-      /*  public RackArrayImpl(int size) {
-        try {
-            if (size >= 0) {
-                this.arrayImpl = new Device[size];
-            } else {
-                throw new IllegalArgumentException();
-            }
-        } catch (IllegalArgumentException e) {
-            LOGGER.log(Level.SEVERE, "Rack size should not be negative :" + " " + size);
-        }
-    }*/
 
     public RackArrayImpl(int size) {
         if (size >= 0) {
             this.arrayImpl = new Device[size];
         } else {
-            LOGGER.log(Level.SEVERE, "Rack size should not be negative, " + "сurrent size is: " + size);
-            throw new IllegalArgumentException("Rack size should not be negative");
+            IllegalArgumentException illegalArgumentException =
+                    new IllegalArgumentException("Rack size should not be negative");
+            LOGGER.log(Level.SEVERE, illegalArgumentException.getMessage()
+                    + ", сurrent size is: " + size, illegalArgumentException);
+            throw illegalArgumentException;
         }
     }
 
-  /*  public RackArrayImpl(int size) {
-        try {
-            if (size >= 0) {
-                this.arrayImpl = new Device[size];
-            } else {
-                throw new IllegalArgumentException();
-            }
-        } catch (IllegalArgumentException e) {
-            LOGGER.log(Level.INFO, "Rack size should not be negative :" + " " + e);
-        }
+   /* public RackArrayImpl(int size, Class clazz){
+        this(size);
+        this.clazz = clazz;
     }*/
+
 
     public int getSize() {
         if (arrayImpl == null) {
@@ -67,56 +50,20 @@ public class RackArrayImpl implements Rack {
         return freeSize;
     }
 
-
     public Device getDevAtSlot(int index) {
-        if (!(index >= 0 && index < arrayImpl.length)) {
-            LOGGER.log(Level.SEVERE, "Incorrect index = " + index + ", correct range: 0.."
-                    + (arrayImpl.length > 0 ? arrayImpl.length - 1 : 0));
-            throw new IndexOutOfBoundsException("Incorrect index = " + index + ", correct range: 0.."
-                    + (arrayImpl.length > 0 ? arrayImpl.length - 1 : 0));
-        } else if (arrayImpl[index] != null) {
+        if (checkIndex(index) && arrayImpl[index] != null) {
             return arrayImpl[index];
         }
         return null;
     }
-
-
-  /*  public Device getDevAtSlot(int index) {
-   *//*     if (index >= 0 && index < arrayImpl.length) {
-            if (arrayImpl[index] != null) {
-                return arrayImpl[index];
-            } else {
-                if (arrayImpl[index] == null) {
-                    LOGGER.log(Level.INFO, "Device not found, slot is empty 11");
-                    System.err.println("Device not found, slot is empty " + ": Slot = " + index);
-                }
-                return null;
-            }
-        } else {
-            if (index < 0 || index > arrayImpl.length) {
-                LOGGER.log(Level.INFO, "Device not found, ssssssssssss");
-                System.err.println("Device not found, slot does not exist" + ": Slot = " + index);
-            }
-            return null;
-        }*//*
-        if (index < 0 || index >= arrayImpl.length) {
-            LOGGER.log(Level.INFO, "Incorrect index, corect range: 0.." + (arrayImpl.length - 1));
-            throw new IndexOutOfBoundsException();
-        } else if (arrayImpl[index] != null) {
-            return arrayImpl[index];
-        }
-        return null;
-    }*/
 
     public boolean insertDevToSlot(Device device, int index) {
-        if (!(index >= 0 && index < arrayImpl.length)) {
-            LOGGER.log(Level.SEVERE, "Incorrect index  = " + index + ", correct range: 0.."
-                    + (arrayImpl.length > 0 ? arrayImpl.length - 1 : 0));
-            throw new IndexOutOfBoundsException("Incorrect index  = " + index + ", correct range: 0.."
-                    + (arrayImpl.length > 0 ? arrayImpl.length - 1 : 0));
-        } else if (!(device != null && device.getIn() > 0)) {
-            LOGGER.log(Level.SEVERE, "Incorrect device: " + device);
-            throw new DeviceValidationException("Rack.insertDevToSlot", device);
+        if (checkIndex(index) && (!(device != null && device.getIn() > 0))) {
+            DeviceValidationException deviceValidationException =
+                    new DeviceValidationException("Rack.insertDevToSlot", device);
+            LOGGER.log(Level.SEVERE, deviceValidationException.getMessage() +
+                    " device: " + deviceValidationException.getObject(), deviceValidationException);
+            throw deviceValidationException;
         }
         if (arrayImpl[index] == null) {
             arrayImpl[index] = device;
@@ -125,47 +72,8 @@ public class RackArrayImpl implements Rack {
         return false;
     }
 
-    /*public boolean insertDevToSlot(Device device, int index) {
-         *//*      if (index >= 0 && index < arrayImpl.length) {
-            if (arrayImpl[index] == null && device != null && device.getIn() > 0) {
-                arrayImpl[index] = device;
-                return true;
-            } else if (device == null) {
-                System.err.println("Device cant't be: " + device);
-            } else if (device.getIn() <= 0) {
-                System.err.println("Can't insert, incorrect IN (<=0) " + ": Slot = " + index);
-            } else if (arrayImpl[index] != null) {
-                System.err.println("Can't insert, slot is full " + ": Slot = " + index);
-            }
-            return false;
-        } else {
-            System.err.println("Can't insert, slot does not exist " + ": Slot = " + index);
-            return false;
-        }*//*
-
-
-        if (!(index >= 0 && index < arrayImpl.length)) {
-            LOGGER.log(Level.INFO, "Incorrect index, corect range: 0.." + (arrayImpl.length - 1));
-            throw new IndexOutOfBoundsException();
-        } else if (!(device != null && device.getIn() > 0)) {
-            LOGGER.log(Level.INFO, "DeviceValidationException");
-            throw new DeviceValidationException();
-        }
-        if (arrayImpl[index] == null) {
-            arrayImpl[index] = device;
-            return true;
-        }
-        return false;
-    }*/
-
     public Device removeDevFromSlot(int index) {
-        if (!(index >= 0 && index < arrayImpl.length)) {
-            LOGGER.log(Level.SEVERE, "Incorrect index  = " + index + ", correct range: 0.."
-                    + (arrayImpl.length > 0 ? arrayImpl.length - 1 : 0));
-            throw new IndexOutOfBoundsException("Incorrect index  = " + index + ", correct range: 0.."
-                    + (arrayImpl.length > 0 ? arrayImpl.length - 1 : 0));
-        }
-        if (arrayImpl[index] != null) {
+        if (checkIndex(index) && arrayImpl[index] != null) {
             Device removedDevice = arrayImpl[index];
             arrayImpl[index] = null;
             return removedDevice;
@@ -174,29 +82,6 @@ public class RackArrayImpl implements Rack {
         return null;
 
     }
-
-  /* public Device removeDevFromSlot(int index) {
-        if (index >= 0 && index < arrayImpl.length) {
-            if (arrayImpl[index] != null) {
-                Device removedDevice = arrayImpl[index];
-                arrayImpl[index] = null;
-                return removedDevice;
-            }
-            LOGGER.log(Level.WARNING, "Can not remove from empty slot: " + index);
-            return null;
-        }
-        return null;
-    }*/
-
-    /* Old version 3pz
-    public Device removeDevFromSlot(int index) {
-        if (index >= 0 && index < arrayImpl.length) {
-            Device removedDevice = arrayImpl[index];
-            arrayImpl[index] = null;
-            return removedDevice;
-        }
-        return null;
-    }*/
 
     public Device getDevByIN(int in) {
         for (int i = 0; i < arrayImpl.length; i++) {
@@ -207,15 +92,24 @@ public class RackArrayImpl implements Rack {
         LOGGER.log(Level.WARNING, "Device with identification number " + in + " is absent in rack");
         return null;
     }
-}
 
-/*    public Device getDevByIN(int in) {
-        for (int i = 0; i < arrayImpl.length; i++) {
-            if (arrayImpl[i] != null && in == arrayImpl[i].getIn()) {
-                return arrayImpl[i];
-            }
+    private boolean checkIndex(int index) {
+        if (!(index >= 0 && index < arrayImpl.length)) {
+            IndexOutOfBoundsException indexOutOfBoundsException = new IndexOutOfBoundsException("Incorrect index  = " +
+                    index + ", correct range: 0.." + (arrayImpl.length > 0 ? arrayImpl.length - 1 : 0));
+            LOGGER.log(Level.SEVERE, indexOutOfBoundsException.getMessage(), indexOutOfBoundsException);
+            throw indexOutOfBoundsException;
         }
-        System.err.println("Device with identification number " + in + " is absent in rack");
+        return true;
+    }
+
+    @Override
+    public Class getTypeOfDevices() {
         return null;
     }
-}*/
+
+    @Override
+    public Device[] getAllDeviceAsArray() {
+        return new Device[0];
+    }
+}

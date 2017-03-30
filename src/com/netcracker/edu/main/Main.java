@@ -78,7 +78,7 @@ public class Main {
    r.setDataRate(1000);
    //r2.setIn(-6);
    //r3.setIn(5);
-   r3.setIn(7);
+   r3.setIn(-7);
     r4.setIn(0);
 
 
@@ -105,11 +105,11 @@ public class Main {
    System.out.println("-------after insert----------");
    System.out.println("free size = " + rack.getFreeSize());
 
-   rack.removeDevFromSlot(9);
+   //rack.removeDevFromSlot(9);
    //rack.removeDevFromSlot(6);
    //rack.removeDevFromSlot(26);
    //rack.removeDevFromSlot(7);
-   rack.removeDevFromSlot(-5);
+   //rack.removeDevFromSlot(-5);
    System.out.println("-------after remov----------");
    System.out.println("free size = "+ rack.getFreeSize());
    System.out.println("получение номера");
