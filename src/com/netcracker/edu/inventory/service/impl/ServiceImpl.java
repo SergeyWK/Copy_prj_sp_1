@@ -40,18 +40,34 @@ public class ServiceImpl implements Service {
 
     }
 
-    @Override
     public void filtrateByManufacturer(Device[] devices, String manufacturer) {
-
+        for (int i = 0; i < devices.length; i++) {
+            if (devices[i] != null) {
+                if ((manufacturer == null && null != devices[i].getManufacturer())
+                        || (manufacturer != null && !manufacturer.equals(devices[i].getManufacturer()))) {
+                    devices[i] = null;
+                }
+            }
+        }
     }
 
-    @Override
     public void filtrateByModel(Device[] devices, String model) {
-
+        for (int i = 0; i < devices.length; i++) {
+            if (devices[i] != null) {
+                if ((model == null && null != devices[i].getModel())
+                        || (model != null && !model.equals(devices[i].getModel()))) {
+                    devices[i] = null;
+                }
+            }
+        }
     }
 
-    @Override
+
     public boolean isValidDeviceForInsertToRack(Device device) {
-        return false;
+        if ((!(device != null && device.getIn() > 0))) {
+            return false;
+        }
+        return true;
     }
+
 }
