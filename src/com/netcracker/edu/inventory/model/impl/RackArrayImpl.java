@@ -12,26 +12,29 @@ public class RackArrayImpl implements Rack {
     static protected Logger LOGGER = Logger.getLogger(RackArrayImpl.class.getName());
 
     protected Device[] arrayImpl;
-    // private final Class clazz;
+    private final Class clazz;
+
+
+        public RackArrayImpl(int size, Class clazz){
+            if(clazz==null){
+//todo exseption
+            }
+            if (size >= 0) {
+                this.arrayImpl = new Device[size];
+            } else {
+                IllegalArgumentException illegalArgumentException =
+                        new IllegalArgumentException("Rack size should not be negative");
+                LOGGER.log(Level.SEVERE, illegalArgumentException.getMessage()
+                        + ", сurrent size is: " + size, illegalArgumentException);
+                throw illegalArgumentException;
+            }
+            this.clazz=clazz;
+    }
 
 
     public RackArrayImpl(int size) {
-        if (size >= 0) {
-            this.arrayImpl = new Device[size];
-        } else {
-            IllegalArgumentException illegalArgumentException =
-                    new IllegalArgumentException("Rack size should not be negative");
-            LOGGER.log(Level.SEVERE, illegalArgumentException.getMessage()
-                    + ", сurrent size is: " + size, illegalArgumentException);
-            throw illegalArgumentException;
-        }
+        this(size, Device.class);
     }
-
-   /* public RackArrayImpl(int size, Class clazz){
-        this(size);
-        this.clazz = clazz;
-    }*/
-
 
     public int getSize() {
         if (arrayImpl == null) {
@@ -58,6 +61,9 @@ public class RackArrayImpl implements Rack {
     }
 
     public boolean insertDevToSlot(Device device, int index) {
+        if(!clazz.isInstance(device)){
+//          todo exseption
+        }
         if (checkIndex(index) && (!(device != null && device.getIn() > 0))) {
             DeviceValidationException deviceValidationException =
                     new DeviceValidationException("Rack.insertDevToSlot", device);

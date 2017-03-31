@@ -4,7 +4,11 @@ import com.netcracker.edu.inventory.model.Device;
 import com.netcracker.edu.inventory.model.impl.AbstractDevice;
 import com.netcracker.edu.inventory.service.Service;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 public class ServiceImpl implements Service {
 
@@ -37,8 +41,27 @@ public class ServiceImpl implements Service {
 
     @Override
     public void sortByProductionDate(Device[] devices) {
-
+        for (int i = 0; i < devices.length; i++) {
+            for (int j = 1 + i; j < devices.length; j++) {
+                if ((devices[i] != null && devices[j] != null
+                        && ((devices[j].getProductionDate() != null && isAfter(devices[j].getProductionDate(), devices[i].getProductionDate()))
+                        || (devices[i].getProductionDate() == null)))
+                        || (devices[i] == null)) {
+                    Device deviceMemory = devices[i];
+                    devices[i] = devices[j];
+                    devices[j] = deviceMemory;
+                }
+            }
+        }
     }
+
+    private boolean isAfter(Date date1, Date date2) {
+        if (date2 == null) {
+            return false;
+        }
+        return date1.compareTo(date2) < 0;
+    }
+
 
     @Override
     public void filtrateByManufacturer(Device[] devices, String manufacturer) {
