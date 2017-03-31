@@ -62,7 +62,6 @@ public class ServiceImpl implements Service {
         return date1.compareTo(date2) < 0;
     }
 
-
     @Override
     public void filtrateByManufacturer(Device[] devices, String manufacturer) {
 
