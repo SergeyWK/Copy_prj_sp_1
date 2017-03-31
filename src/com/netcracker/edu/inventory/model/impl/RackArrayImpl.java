@@ -15,26 +15,47 @@ public class RackArrayImpl implements Rack {
     private final Class clazz;
 
 
-        public RackArrayImpl(int size, Class clazz){
-            if(clazz==null){
-//todo exseption
-            }
-            if (size >= 0) {
-                this.arrayImpl = new Device[size];
-            } else {
-                IllegalArgumentException illegalArgumentException =
-                        new IllegalArgumentException("Rack size should not be negative");
-                LOGGER.log(Level.SEVERE, illegalArgumentException.getMessage()
-                        + ", сurrent size is: " + size, illegalArgumentException);
-                throw illegalArgumentException;
-            }
-            this.clazz=clazz;
+    public RackArrayImpl(int size, Class clazz) {
+        if (clazz == null) {
+            throw new IllegalArgumentException("Type cannot be: " + clazz);
+        }
+        if (size >= 0) {
+            this.arrayImpl = new Device[size];
+        } else {
+            IllegalArgumentException illegalArgumentException =
+                    new IllegalArgumentException("Rack size should not be negative");
+            LOGGER.log(Level.SEVERE, illegalArgumentException.getMessage()
+                    + ", сurrent size is: " + size, illegalArgumentException);
+            throw illegalArgumentException;
+        }
+        this.clazz = clazz;
     }
 
 
     public RackArrayImpl(int size) {
         this(size, Device.class);
     }
+
+     /* public RackArrayImpl(int size) {
+        if (size >= 0) {
+            this.arrayImpl = new Device[size];
+        } else {
+            IllegalArgumentException illegalArgumentException =
+                    new IllegalArgumentException("Rack size should not be negative");
+            LOGGER.log(Level.SEVERE, illegalArgumentException.getMessage()
+                    + ", сurrent size is: " + size, illegalArgumentException);
+            throw illegalArgumentException;
+        }
+    }*/
+
+   /* public RackArrayImpl(int size, Class clazz) {
+        this(size);
+        if (clazz != null) {
+            clazz = Device.class;
+        } else {
+            throw new IllegalArgumentException("Type can not be: " + clazz);
+        }
+    }*/
 
     public int getSize() {
         if (arrayImpl == null) {
@@ -61,6 +82,25 @@ public class RackArrayImpl implements Rack {
     }
 
     public boolean insertDevToSlot(Device device, int index) {
+        if (!clazz.isInstance(device)) {
+            throw new IllegalArgumentException(
+                    "The type of the transmitted object is not compatible with the type, that the rack can store.");
+        }
+        if (checkIndex(index) && (!(device != null && device.getIn() > 0))) {
+            DeviceValidationException deviceValidationException =
+                    new DeviceValidationException("Rack.insertDevToSlot", device);
+            LOGGER.log(Level.SEVERE, deviceValidationException.getMessage() +
+                    " device: " + deviceValidationException.getObject(), deviceValidationException);
+            throw deviceValidationException;
+        }
+        if (arrayImpl[index] == null) {
+            arrayImpl[index] = device;
+            return true;
+        }
+        return false;
+    }
+
+/*    public boolean insertDevToSlot(Device device, int index) {
         if(!clazz.isInstance(device)){
 //          todo exseption
         }
@@ -76,7 +116,7 @@ public class RackArrayImpl implements Rack {
             return true;
         }
         return false;
-    }
+    }*/
 
     public Device removeDevFromSlot(int index) {
         if (checkIndex(index) && arrayImpl[index] != null) {
@@ -114,8 +154,17 @@ public class RackArrayImpl implements Rack {
         return null;
     }
 
-    @Override
     public Device[] getAllDeviceAsArray() {
-        return new Device[0];
+        int device = 0;
+        Device[] devices = new Device[arrayImpl.length - 1];
+        for (int i = 0; i < arrayImpl.length; i++) {
+            if (arrayImpl[i] != null) {
+                devices[device] = arrayImpl[i];
+                device++;
+            }
+        }
+        return devices;
     }
+
+
 }
