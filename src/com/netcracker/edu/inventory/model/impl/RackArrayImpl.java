@@ -3,6 +3,7 @@ package com.netcracker.edu.inventory.model.impl;
 import com.netcracker.edu.inventory.exception.DeviceValidationException;
 import com.netcracker.edu.inventory.model.Device;
 import com.netcracker.edu.inventory.model.Rack;
+import com.netcracker.edu.inventory.service.impl.ServiceImpl;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -36,27 +37,6 @@ public class RackArrayImpl implements Rack {
         this(size, Device.class);
     }
 
-     /* public RackArrayImpl(int size) {
-        if (size >= 0) {
-            this.arrayImpl = new Device[size];
-        } else {
-            IllegalArgumentException illegalArgumentException =
-                    new IllegalArgumentException("Rack size should not be negative");
-            LOGGER.log(Level.SEVERE, illegalArgumentException.getMessage()
-                    + ", сurrent size is: " + size, illegalArgumentException);
-            throw illegalArgumentException;
-        }
-    }*/
-
-   /* public RackArrayImpl(int size, Class clazz) {
-        this(size);
-        if (clazz != null) {
-            clazz = Device.class;
-        } else {
-            throw new IllegalArgumentException("Type can not be: " + clazz);
-        }
-    }*/
-
     public int getSize() {
         if (arrayImpl == null) {
             return 0;
@@ -82,16 +62,16 @@ public class RackArrayImpl implements Rack {
     }
 
     public boolean insertDevToSlot(Device device, int index) {
-        if (!clazz.isInstance(device)) {
-            throw new IllegalArgumentException(
-                    "The type of the transmitted object is not compatible with the type, that the rack can store.");
-        }
-        if (checkIndex(index) && (!(device != null && device.getIn() > 0))) {
+        if (checkIndex(index) && (!new ServiceImpl().isValidDeviceForInsertToRack(device))) {
             DeviceValidationException deviceValidationException =
                     new DeviceValidationException("Rack.insertDevToSlot", device);
             LOGGER.log(Level.SEVERE, deviceValidationException.getMessage() +
                     " device: " + deviceValidationException.getObject(), deviceValidationException);
             throw deviceValidationException;
+        }
+        if (!clazz.isInstance(device)) {
+            throw new IllegalArgumentException(
+                    "The type of the transmitted object is not compatible with the type, that the rack can store.");
         }
         if (arrayImpl[index] == null) {
             arrayImpl[index] = device;
@@ -99,24 +79,6 @@ public class RackArrayImpl implements Rack {
         }
         return false;
     }
-
-/*    public boolean insertDevToSlot(Device device, int index) {
-        if(!clazz.isInstance(device)){
-//          todo exseption
-        }
-        if (checkIndex(index) && (!(device != null && device.getIn() > 0))) {
-            DeviceValidationException deviceValidationException =
-                    new DeviceValidationException("Rack.insertDevToSlot", device);
-            LOGGER.log(Level.SEVERE, deviceValidationException.getMessage() +
-                    " device: " + deviceValidationException.getObject(), deviceValidationException);
-            throw deviceValidationException;
-        }
-        if (arrayImpl[index] == null) {
-            arrayImpl[index] = device;
-            return true;
-        }
-        return false;
-    }*/
 
     public Device removeDevFromSlot(int index) {
         if (checkIndex(index) && arrayImpl[index] != null) {
@@ -149,14 +111,23 @@ public class RackArrayImpl implements Rack {
         return true;
     }
 
-    @Override
     public Class getTypeOfDevices() {
-        return null;
+        return  clazz;
     }
+
+  /*  public Device[] getAllDeviceAsArray() {
+        ArrayList list = new ArrayList();
+        for (int i = 0; i < arrayImpl.length; i++) {
+            if (arrayImpl[i] != null) {
+                list.add(arrayImpl[i]);
+            }
+        }
+        return (Device[]) list.toArray(new Device[list.size()]);
+    }*/
 
     public Device[] getAllDeviceAsArray() {
         int device = 0;
-        Device[] devices = new Device[arrayImpl.length - 1];
+        Device[] devices = new Device[arrayImpl.length - getFreeSize()];
         for (int i = 0; i < arrayImpl.length; i++) {
             if (arrayImpl[i] != null) {
                 devices[device] = arrayImpl[i];
@@ -165,6 +136,5 @@ public class RackArrayImpl implements Rack {
         }
         return devices;
     }
-
 
 }

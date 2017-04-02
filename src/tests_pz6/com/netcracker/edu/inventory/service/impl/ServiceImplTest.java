@@ -5,6 +5,8 @@ import com.netcracker.edu.inventory.model.impl.Battery;
 import com.netcracker.edu.inventory.model.impl.Router;
 import com.netcracker.edu.inventory.model.impl.Switch;
 import com.netcracker.edu.inventory.model.impl.WifiRouter;
+import com.netcracker.edu.inventory.service.DeviceService;
+import com.netcracker.edu.inventory.service.RackService;
 import com.netcracker.edu.inventory.service.Service;
 import org.junit.After;
 import org.junit.Before;
@@ -14,10 +16,9 @@ import java.util.Date;
 
 import static org.junit.Assert.*;
 
-/*
-  Created by makovetskyi on 05.10.16.
+/**
+ * Created by makovetskyi on 05.10.16.
  */
-
 public class ServiceImplTest {
 
     Service service;
@@ -31,6 +32,8 @@ public class ServiceImplTest {
     @Before
     public void before() throws Exception {
         service = new ServiceImpl();
+
+        //for sort and filtrate tests
         b = new Battery();
         b.setType(Battery.class.getSimpleName());
         b.setManufacturer("APC");
@@ -59,6 +62,7 @@ public class ServiceImplTest {
 
     }
 
+    @Deprecated
     @Test
     public void sortByIN() throws Exception {
         Battery b0 = new Battery();
@@ -76,6 +80,7 @@ public class ServiceImplTest {
         assertArrayEquals(expResult, devices);
     }
 
+    @Deprecated
     @Test
     public void sortByProductionDate() throws Exception {
         Battery b0 = new Battery();
@@ -93,6 +98,7 @@ public class ServiceImplTest {
         assertArrayEquals(expResult, devices);
     }
 
+    @Deprecated
     @Test
     public void filtrateByType() throws Exception {
         Device[] devices = new Device[] {null, r, b, tn, r, s, tn, null, wr, b};
@@ -103,6 +109,7 @@ public class ServiceImplTest {
         assertArrayEquals(expResult, devices);
     }
 
+    @Deprecated
     @Test
     public void filtrateByType_TypeNull() throws Exception {
         Device[] devices = new Device[] {null, r, b, tn, r, s, tn, null, wr, b};
@@ -113,6 +120,7 @@ public class ServiceImplTest {
         assertArrayEquals(expResult, devices);
     }
 
+    @Deprecated
     @Test
     public void filtrateByType_TypeAnotherString() throws Exception {
         Device[] devices = new Device[] {null, r, b, ab, r, s, ab, null, wr, b};
@@ -123,6 +131,7 @@ public class ServiceImplTest {
         assertArrayEquals(expResult, devices);
     }
 
+    @Deprecated
     @Test
     public void filtrateByManufacturer() throws Exception {
         Device[] devices = new Device[] {null, r, b, tn, r, s, tn, null, wr, b};
@@ -133,6 +142,7 @@ public class ServiceImplTest {
         assertArrayEquals(expResult, devices);
     }
 
+    @Deprecated
     @Test
     public void filtrateByManufacturer_ManufacturerNull() throws Exception {
         Device[] devices = new Device[] {null, r, b, tn, r, s, tn, null, wr, b};
@@ -143,6 +153,7 @@ public class ServiceImplTest {
         assertArrayEquals(expResult, devices);
     }
 
+    @Deprecated
     @Test
     public void filtrateByManufacturer_ManufacturerAnotherString() throws Exception {
         Device[] devices = new Device[] {null, r, b, ab, r, s, ab, null, wr, b};
@@ -153,6 +164,7 @@ public class ServiceImplTest {
         assertArrayEquals(expResult, devices);
     }
 
+    @Deprecated
     @Test
     public void filtrateByModel() throws Exception {
         Device[] devices = new Device[] {null, r, b, tn, r, s, tn, null, wr, b};
@@ -163,6 +175,7 @@ public class ServiceImplTest {
         assertArrayEquals(expResult, devices);
     }
 
+    @Deprecated
     @Test
     public void filtrateByModel_ModelNull() throws Exception {
         Device[] devices = new Device[] {null, r, b, tn, r, s, tn, null, wr, b};
@@ -173,6 +186,7 @@ public class ServiceImplTest {
         assertArrayEquals(expResult, devices);
     }
 
+    @Deprecated
     @Test
     public void filtrateByModel_ModelAnotherString() throws Exception {
         Device[] devices = new Device[] {null, r, b, ab, r, s, ab, null, wr, b};
@@ -183,6 +197,7 @@ public class ServiceImplTest {
         assertArrayEquals(expResult, devices);
     }
 
+    @Deprecated
     @Test
     public void isValidDeviceForInsertToRack() throws Exception {
         Battery battery = new Battery();
@@ -193,6 +208,7 @@ public class ServiceImplTest {
         assertTrue(result);
     }
 
+    @Deprecated
     @Test
     public void isValidDeviceForInsertToRack_DeviceNull() throws Exception {
         boolean result = service.isValidDeviceForInsertToRack(null);
@@ -200,6 +216,7 @@ public class ServiceImplTest {
         assertFalse(result);
     }
 
+    @Deprecated
     @Test
     public void isValidDeviceForInsertToRack_IN0() throws Exception {
         Battery battery = new Battery();
@@ -207,6 +224,20 @@ public class ServiceImplTest {
         boolean result = service.isValidDeviceForInsertToRack(battery);
 
         assertFalse(result);
+    }
+
+    @Test
+    public void getDeviceService() throws Exception {
+        DeviceService deviceService = service.getDeviceService();
+
+        assertNotNull(deviceService);
+    }
+
+    @Test
+    public void getRackService() throws Exception {
+        RackService rackService = service.getRackService();
+
+        assertNotNull(rackService);
     }
 
 }

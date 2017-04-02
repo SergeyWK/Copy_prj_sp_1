@@ -1,16 +1,14 @@
 package com.netcracker.edu.inventory.service.impl;
 
+
 import com.netcracker.edu.inventory.model.Device;
 import com.netcracker.edu.inventory.service.DeviceService;
-import com.netcracker.edu.inventory.service.RackService;
-import com.netcracker.edu.inventory.service.Service;
 
+import java.io.*;
 import java.util.Date;
 
+class DeviceServiceImpl implements DeviceService {
 
-public class ServiceImpl implements Service {
-
-    @Deprecated
     public void sortByIN(Device[] devices) {
         for (int i = 0; i < devices.length; i++) {
             for (int j = 1 + i; j < devices.length; j++) {
@@ -27,7 +25,6 @@ public class ServiceImpl implements Service {
         }
     }
 
-    @Deprecated
     public void filtrateByType(Device[] devices, String type) {
         for (int i = 0; i < devices.length; i++) {
             if (devices[i] != null) {
@@ -39,7 +36,6 @@ public class ServiceImpl implements Service {
         }
     }
 
-    @Deprecated
     public void sortByProductionDate(Device[] devices) {
         for (int i = 0; i < devices.length; i++) {
             for (int j = 1 + i; j < devices.length; j++) {
@@ -63,7 +59,6 @@ public class ServiceImpl implements Service {
         return date1.compareTo(date2) < 0;
     }
 
-    @Deprecated
     public void filtrateByManufacturer(Device[] devices, String manufacturer) {
         for (int i = 0; i < devices.length; i++) {
             if (devices[i] != null) {
@@ -75,7 +70,6 @@ public class ServiceImpl implements Service {
         }
     }
 
-    @Deprecated
     public void filtrateByModel(Device[] devices, String model) {
         for (int i = 0; i < devices.length; i++) {
             if (devices[i] != null) {
@@ -87,7 +81,6 @@ public class ServiceImpl implements Service {
         }
     }
 
-    @Deprecated
     public boolean isValidDeviceForInsertToRack(Device device) {
         if ((!(device != null && device.getIn() > 0))) {
             return false;
@@ -96,12 +89,27 @@ public class ServiceImpl implements Service {
     }
 
 
-    public DeviceService getDeviceService() {
+    public boolean isValidDeviceForOutputToStream(Device device) {
+        return false;
+    }
+
+
+    public void outputDevice(Device device, OutputStream outputStream) throws IOException {
+
+    }
+
+
+    public Device inputDevice(InputStream inputStream) throws IOException, ClassNotFoundException {
         return null;
     }
 
 
-    public RackService getRackService() {
+    public void writeDevice(Device device, Writer writer) throws IOException {
+
+    }
+
+
+    public Device readDevice(Reader reader) throws IOException, ClassNotFoundException {
         return null;
     }
 }
