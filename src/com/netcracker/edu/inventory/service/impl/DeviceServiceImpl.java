@@ -12,6 +12,8 @@ import java.util.Date;
 
 class DeviceServiceImpl implements DeviceService {
 
+    public static final String LINE_MARKER = "\n";
+
     public void sortByIN(Device[] devices) {
         for (int i = 0; i < devices.length; i++) {
             for (int j = 1 + i; j < devices.length; j++) {
@@ -121,49 +123,20 @@ class DeviceServiceImpl implements DeviceService {
 
     public void outputDevice(Device device, OutputStream outputStream) throws IOException {
         if(device != null) {
-            Class deviceClasse = device.getClass();
-            int deviceIn = device.getIn();
-    /*        String deviceType = device.getType() != null ? device.getType() : "\n";
-            String deviceModel = device.getModel() != null ? device.getModel() : "\n";
-            String deviceanufacturer = device.getManufacturer() != null ? device.getManufacturer() : "\n";*/
-            String deviceType = device.getType();
-            String deviceModel = device.getModel();
-            String deviceanufacturer = device.getManufacturer();
-            //todo хуйня
-         //   String deviceSecurityProtocol = ((WifiRouter) device).getSecurityProtocol()!= null ? ((WifiRouter) device).getSecurityProtocol() : "\n";
-            //todo хуйня
-            long deviceProductionDate = device.getProductionDate() != null ? device.getProductionDate().getTime() : -1;
-           // Long timeStamp = new Long(deviceProductionDate);
-
-         /*    && deviceModel != null && deviceanufacturer != null && deviceSecurityProtocol != null*/
-         if(outputStream == null) {
-             IllegalArgumentException illegalArgumentException = new IllegalArgumentException();
-             //todo log
-             throw illegalArgumentException;
-         }
+            if(outputStream == null) {
+                IllegalArgumentException illegalArgumentException = new IllegalArgumentException();
+                //todo log
+                throw illegalArgumentException;
+            }
             outputStream  = new FileOutputStream("out.bin");
-            outputStream.write((byte)deviceIn);
-            outputStream.write(deviceClasse.getName().getBytes());
-
-
-                if(validObjectDevice(deviceType)){
-                    outputStream.write(deviceType.getBytes());
-                }
-                if(validObjectDevice(deviceModel)){
-                    outputStream.write(deviceModel.getBytes());
-                }
-                if(validObjectDevice(deviceanufacturer)){
-                    outputStream.write(deviceanufacturer.getBytes());
-                }
-
-/*            if(deviceSecurityProtocol != null){
-                if(validObjectDevice(deviceSecurityProtocol)){
-                    outputStream.write(deviceSecurityProtocol.getBytes());
-                }
-            }*/
-            outputStream.write((byte)deviceProductionDate);
-          //  outputStream.write(timeStamp.byteValue());
-            outputStream.close();
+            DataOutputStream dataOutputStream = new DataOutputStream(outputStream);
+            dataOutputStream.writeUTF(device.getClass().getName());
+            dataOutputStream.writeInt(device.getIn());
+            dataOutputStream.writeUTF(validObjectDevice(device.getType()));
+            dataOutputStream.writeUTF(validObjectDevice(device.getModel()));
+            dataOutputStream.writeUTF(validObjectDevice(device.getManufacturer()));
+            dataOutputStream.writeLong(device.getProductionDate() == null ? -1 : device.getProductionDate().getTime());
+            dataOutputStream.flush();
         }
     }
 
@@ -201,15 +174,15 @@ class DeviceServiceImpl implements DeviceService {
         return false;
     }
 
-    private boolean validObjectDevice (String string) {
+    private String validObjectDevice (String string) {
         if(string == null) {
-            string = "\n";
-            return  false;
+            return LINE_MARKER;
         } else if(string.contains("\n")){
             DeviceValidationException deviceValidationException = new DeviceValidationException();
             //todo log
             throw deviceValidationException;
+        } else {
+            return string;
         }
-        return true;
     }
 }
