@@ -97,11 +97,11 @@ public class ServiceImpl implements Service {
 
 
     public DeviceService getDeviceService() {
-        return null;
+        return new DeviceServiceImpl();
     }
 
 
     public RackService getRackService() {
-        return null;
+        return new RackServiceImpl();
     }
 }
