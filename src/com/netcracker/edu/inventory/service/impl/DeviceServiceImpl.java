@@ -3,6 +3,9 @@ package com.netcracker.edu.inventory.service.impl;
 
 import com.netcracker.edu.inventory.exception.DeviceValidationException;
 import com.netcracker.edu.inventory.model.Device;
+import com.netcracker.edu.inventory.model.impl.Battery;
+import com.netcracker.edu.inventory.model.impl.Router;
+import com.netcracker.edu.inventory.model.impl.Switch;
 import com.netcracker.edu.inventory.model.impl.WifiRouter;
 import com.netcracker.edu.inventory.service.DeviceService;
 
@@ -99,25 +102,20 @@ class DeviceServiceImpl implements DeviceService {
             String deviceModel = device.getModel();
             String deviceManufacturer = device.getManufacturer();
             String deviceType = device.getType();
-            //todo хуйня
-            String deviceSecurityProtocol = ((WifiRouter) device).getSecurityProtocol();
-            //todo хуйня
-            if((validStringIsNullOrEmpty(deviceModel) && !deviceModel.contains("\n"))
-                    || (validStringIsNullOrEmpty(deviceManufacturer) && !deviceManufacturer.contains("\n"))
-                    || (validStringIsNullOrEmpty(deviceType) && !deviceType.contains("\n"))
-                    || (validStringIsNullOrEmpty(deviceSecurityProtocol) && !deviceSecurityProtocol.contains("\n"))){
-                return  true;
-            }
-            /*if((validStringIsNullOrEmpty(deviceModel) || validStringIsNullOrEmpty(deviceManufacturer)
-                    || validStringIsNullOrEmpty(deviceType) || validStringIsNullOrEmpty(deviceSecurityProtocol)) && !(deviceModel.contains("\n")
-                    || deviceManufacturer.contains("\n")
-                    || deviceType.contains("\n")
-                    || deviceSecurityProtocol.contains("\n"))){
-                return  true;
-            }*/
-            return  false;
+            String routerSecurityProtocol = ((WifiRouter) device).getSecurityProtocol();
+            boolean validObject = (isValidField(deviceModel)) && (isValidField(deviceManufacturer))
+                    && (isValidField(deviceType) && (isValidField(routerSecurityProtocol)));
+
+            return  validObject;
         }
         return false;
+    }
+
+    private boolean isValidField(String field){
+        if(field==null){
+            return true;
+        }
+        return !field.contains("\n");
     }
 
 
@@ -128,15 +126,35 @@ class DeviceServiceImpl implements DeviceService {
                 //todo log
                 throw illegalArgumentException;
             }
-            outputStream  = new FileOutputStream("out.bin");
+
             DataOutputStream dataOutputStream = new DataOutputStream(outputStream);
-            dataOutputStream.writeUTF(device.getClass().getName());
-            dataOutputStream.writeInt(device.getIn());
-            dataOutputStream.writeUTF(validObjectDevice(device.getType()));
-            dataOutputStream.writeUTF(validObjectDevice(device.getModel()));
-            dataOutputStream.writeUTF(validObjectDevice(device.getManufacturer()));
-            dataOutputStream.writeLong(device.getProductionDate() == null ? -1 : device.getProductionDate().getTime());
+            writeDevice(device, dataOutputStream);
+            writeSpecificDevice(device, dataOutputStream);
             dataOutputStream.flush();
+        }
+    }
+
+    private void writeDevice(Device device, DataOutputStream dataOutputStream) throws IOException {
+        dataOutputStream.writeUTF(device.getClass().getName());
+        dataOutputStream.writeInt(device.getIn());
+        dataOutputStream.writeUTF(validObjectDevice(device.getType()));
+        dataOutputStream.writeUTF(validObjectDevice(device.getModel()));
+        dataOutputStream.writeUTF(validObjectDevice(device.getManufacturer()));
+        dataOutputStream.writeLong(device.getProductionDate() == null ? -1 : device.getProductionDate().getTime());
+    }
+
+    private void writeSpecificDevice(Device device, DataOutputStream dataOutputStream) throws IOException {
+        if(device instanceof Battery){
+            dataOutputStream.writeInt(((Battery) device).getChargeVolume());
+        } else if(device instanceof Router && (Router.class.getName().equals(device.getClass().getName()))){
+            dataOutputStream.writeInt(((Router) device).getDataRate());
+        } else if(device instanceof Switch){
+            dataOutputStream.writeInt(((Switch) device).getDataRate());
+            dataOutputStream.writeInt(((Switch) device).getNumberOfPorts());
+        } else if(device instanceof WifiRouter && (WifiRouter.class.getName().equals(device.getClass().getName()))){
+            dataOutputStream.writeInt(((WifiRouter) device).getDataRate());
+            dataOutputStream.writeUTF(validObjectDevice(((WifiRouter) device).getSecurityProtocol()));
+
         }
     }
 
@@ -147,16 +165,48 @@ class DeviceServiceImpl implements DeviceService {
             //todo log
             throw illegalArgumentException;
         }
-        inputStream = new FileInputStream("out.bin");
-        byte[] bytes = new byte[100];
-        inputStream.read(bytes);
-        for (byte b : bytes) {
-            System.out.print(" " + b);
+
+        DataInputStream dataInput = new DataInputStream(inputStream);
+        String deviceClassName = dataInput.readUTF();
+
+        Device device = deviceInitialization(deviceClassName);
+        if(device != null) {
+            readDevice(device, dataInput);
+            readSpecific(device, dataInput);
         }
-        inputStream.close();
-        return null;
+
+        return device;
     }
 
+
+    private void readDevice(Device device, DataInputStream dataInput) throws IOException {
+        int deviceIn = dataInput.readInt();
+        String deviceType = readValue(dataInput.readUTF());
+        String deviceModel = readValue(dataInput.readUTF());
+        String deviceManufacturer = readValue(dataInput.readUTF());
+        long  deviceProductionDate = dataInput.readLong();
+        Date date = deviceProductionDate==-1 ? null : new Date(deviceProductionDate);
+
+        device.setIn(deviceIn);
+        device.setType(deviceType);
+        device.setModel(deviceModel);
+        device.setManufacturer(deviceManufacturer);
+        device.setProductionDate(date);
+    }
+
+    private void readSpecific(Device device, DataInputStream dataInput) throws IOException {
+        if(device instanceof Battery){
+            ((Battery) device).setChargeVolume(dataInput.readInt());
+        } else if(device instanceof Router && (Router.class.getName().equals(device.getClass().getName()))){
+            ((Router) device).setDataRate(dataInput.readInt());
+        } else if(device instanceof Switch){
+            ((Switch) device).setDataRate(dataInput.readInt());
+            ((Switch) device).setNumberOfPorts(dataInput.readInt());
+        } else if(device instanceof WifiRouter && (WifiRouter.class.getName().equals(device.getClass().getName()))){
+            ((WifiRouter) device).setDataRate(dataInput.readInt());
+            ((WifiRouter) device).setSecurityProtocol(readValue(dataInput.readUTF()));
+        }
+    }
 
     public void writeDevice(Device device, Writer writer) throws IOException {
 
@@ -165,13 +215,6 @@ class DeviceServiceImpl implements DeviceService {
 
     public Device readDevice(Reader reader) throws IOException, ClassNotFoundException {
         return null;
-    }
-
-    private boolean validStringIsNullOrEmpty (String string) {
-        if (string != null && string.length() > 0) {
-           return  true;
-        }
-        return false;
     }
 
     private String validObjectDevice (String string) {
@@ -184,5 +227,25 @@ class DeviceServiceImpl implements DeviceService {
         } else {
             return string;
         }
+    }
+
+    private String readValue(String value){
+        if(LINE_MARKER.equals(value)){
+            return null;
+        }
+        return value;
+    }
+
+    private Device deviceInitialization(String deviceClass){
+        if(Battery.class.getName().equals(deviceClass)){
+            return new Battery();
+        } else if(Router.class.getName().equals(deviceClass)){
+            return new Router();
+        } else if(Switch.class.getName().equals(deviceClass)){
+            return new Switch();
+        } else if(WifiRouter.class.getName().equals(deviceClass)){
+            return new WifiRouter();
+        }
+        return null;
     }
 }
