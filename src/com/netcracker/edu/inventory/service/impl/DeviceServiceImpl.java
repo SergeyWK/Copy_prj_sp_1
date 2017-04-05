@@ -124,10 +124,9 @@ class DeviceServiceImpl implements DeviceService {
         if (device != null) {
             if (outputStream == null) {
                 IllegalArgumentException illegalArgumentException = new IllegalArgumentException();
-                //todo log
+                LOGGER.log(Level.SEVERE, illegalArgumentException + ", Output stream can't be: " + outputStream);
                 throw illegalArgumentException;
             }
-
             DataOutputStream dataOutputStream = new DataOutputStream(outputStream);
             writeDevice(device, dataOutputStream);
             writeSpecificDevice(device, dataOutputStream);
@@ -159,16 +158,26 @@ class DeviceServiceImpl implements DeviceService {
         }
     }
 
+    private String validObjectDevice(String string) {
+        if (string == null) {
+            return LINE_MARKER;
+        } else if (string.contains("\n")) {
+            DeviceValidationException deviceValidationException = new DeviceValidationException();
+            LOGGER.log(Level.SEVERE, deviceValidationException.getMessage(), deviceValidationException);
+            throw deviceValidationException;
+        } else {
+            return string;
+        }
+    }
+
     public Device inputDevice(InputStream inputStream) throws IOException, ClassNotFoundException {
         if (inputStream == null) {
             IllegalArgumentException illegalArgumentException = new IllegalArgumentException();
-            //todo log
+            LOGGER.log(Level.SEVERE, illegalArgumentException + ", Input stream can't be: " + inputStream);
             throw illegalArgumentException;
         }
-
         DataInputStream dataInput = new DataInputStream(inputStream);
         String deviceClassName = dataInput.readUTF();
-
         Device device = deviceInitialization(deviceClassName);
         if (device != null) {
             readDevice(device, dataInput);
@@ -221,17 +230,7 @@ class DeviceServiceImpl implements DeviceService {
     }
 
 
-    private String validObjectDevice(String string) {
-        if (string == null) {
-            return LINE_MARKER;
-        } else if (string.contains("\n")) {
-            DeviceValidationException deviceValidationException = new DeviceValidationException();
-            //todo log
-            throw deviceValidationException;
-        } else {
-            return string;
-        }
-    }
+
 
     private String readValue(String value) {
         if (LINE_MARKER.equals(value)) {
