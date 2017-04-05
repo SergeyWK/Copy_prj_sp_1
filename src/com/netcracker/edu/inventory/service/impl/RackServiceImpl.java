@@ -39,21 +39,30 @@ class RackServiceImpl implements RackService {
         dataOutputStream.writeInt(rack.getSize());
         dataOutputStream.writeUTF(rack.getTypeOfDevices().getName());
         dataOutputStream.writeInt(rack.getAllDeviceAsArray().length);
-        if(rack.getAllDeviceAsArray().length > 0){
+/*        if(rack.getAllDeviceAsArray().length > 0){
             writeDevice(rack.getAllDeviceAsArray(), dataOutputStream);
+        }   */
+        if(rack.getSize() > 0){
+            for (int i = 0; i <= rack.getSize()-1; i++) {
+                if (rack.getDevAtSlot(i) != null) {
+                    dataOutputStream.writeInt(i);
+                    writeDeviceRack(rack.getDevAtSlot(i), dataOutputStream);
+                    writeSpecificDevice(rack.getDevAtSlot(i), dataOutputStream);
+                }
+            }
         }
 
 
     }
 
-    private void writeDevice(Device[] devices, DataOutputStream dataOutputStream) throws IOException {
+/*    private void writeDevice(Device[] devices, DataOutputStream dataOutputStream) throws IOException {
         for (int i = 0; i < devices.length; i++) {
             if (devices[i] != null) {
                 writeDeviceRack(devices[i], dataOutputStream);
                 writeSpecificDevice(devices[i], dataOutputStream);
             }
         }
-    }
+    }*/
 
     private void writeDeviceRack(Device device, DataOutputStream dataOutputStream) throws IOException {
         dataOutputStream.writeUTF(device.getClass().getName());
@@ -103,18 +112,19 @@ class RackServiceImpl implements RackService {
         String deviceClass = dataInput.readUTF();
         int amountDevice = dataInput.readInt();
         Rack rack = deviceInitialization(rackSize, deviceClass);
-        if(amountDevice > 0){
+        if(rackSize > 0){
             String deviceClassName;
             Device device;
-            for(int i =0; i< amountDevice; i++){
-                deviceClassName = dataInput.readUTF();
-                device = deviceInitialization(deviceClassName);
-                if(device != null) {
-                    readDevice(device, dataInput);
-                    readSpecific(device, dataInput);
-                    rack.insertDevToSlot(device, i);
-                }
-
+            int devIndex;
+            for(int i =0; i< amountDevice; i++){;
+                    devIndex = dataInput.readInt();
+                    deviceClassName = dataInput.readUTF();
+                    device = deviceInitialization(deviceClassName);
+                    if(device != null) {
+                        readDevice(device, dataInput);
+                        readSpecific(device, dataInput);
+                        rack.insertDevToSlot(device, devIndex);
+                    }
             }
         }
         return rack;
