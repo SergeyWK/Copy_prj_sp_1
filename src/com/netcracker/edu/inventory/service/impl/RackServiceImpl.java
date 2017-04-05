@@ -12,6 +12,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.Date;
 
+import static java.lang.Class.forName;
+
 class RackServiceImpl implements RackService {
 
     static protected Logger LOGGER = Logger.getLogger(RackServiceImpl.class.getName());
@@ -43,7 +45,7 @@ class RackServiceImpl implements RackService {
             writeDevice(rack.getAllDeviceAsArray(), dataOutputStream);
         }   */
         if(rack.getSize() > 0){
-            for (int i = 0; i <= rack.getSize()-1; i++) {
+            for (int i = 0; i < rack.getSize(); i++) {
                 if (rack.getDevAtSlot(i) != null) {
                     dataOutputStream.writeInt(i);
                     writeDeviceRack(rack.getDevAtSlot(i), dataOutputStream);
@@ -114,11 +116,13 @@ class RackServiceImpl implements RackService {
         Rack rack = deviceInitialization(rackSize, deviceClass);
         if(rackSize > 0){
             String deviceClassName;
+            Class clazz;
             Device device;
             int devIndex;
             for(int i =0; i< amountDevice; i++){;
                     devIndex = dataInput.readInt();
                     deviceClassName = dataInput.readUTF();
+                    clazz = forName(deviceClassName);
                     device = deviceInitialization(deviceClassName);
                     if(device != null) {
                         readDevice(device, dataInput);
