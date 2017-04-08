@@ -34,17 +34,6 @@ class DeviceServiceImpl implements DeviceService {
         }
     }
 
-    public void filtrateByType(Device[] devices, String type) {
-        for (int i = 0; i < devices.length; i++) {
-            if (devices[i] != null) {
-                if ((type == null && null != devices[i].getType())
-                        || (type != null && !type.equals(devices[i].getType()))) {
-                    devices[i] = null;
-                }
-            }
-        }
-    }
-
     public void sortByProductionDate(Device[] devices) {
         for (int i = 0; i < devices.length; i++) {
             for (int j = 1 + i; j < devices.length; j++) {
@@ -66,6 +55,17 @@ class DeviceServiceImpl implements DeviceService {
             return false;
         }
         return date1.compareTo(date2) < 0;
+    }
+
+    public void filtrateByType(Device[] devices, String type) {
+        for (int i = 0; i < devices.length; i++) {
+            if (devices[i] != null) {
+                if ((type == null && null != devices[i].getType())
+                        || (type != null && !type.equals(devices[i].getType()))) {
+                    devices[i] = null;
+                }
+            }
+        }
     }
 
     public void filtrateByManufacturer(Device[] devices, String manufacturer) {
@@ -178,15 +178,35 @@ class DeviceServiceImpl implements DeviceService {
         }
         DataInputStream dataInput = new DataInputStream(inputStream);
         String deviceClassName = dataInput.readUTF();
-        Device device = deviceInitialization(deviceClassName);
-        if (device != null) {
-            readDevice(device, dataInput);
-            readSpecific(device, dataInput);
+        Device device;
+        try {
+            Class clazz = Class.forName(deviceClassName);
+            device = deviceInitialization(clazz);
+            if (device != null) {
+                readDevice(device, dataInput);
+                readSpecificDevice(device, dataInput);
+            }
+        } catch (ClassNotFoundException e) {
+            LOGGER.log(Level.SEVERE, e + deviceClassName);
+            throw e;
         }
-
         return device;
     }
 
+    private Device deviceInitialization(Class deviceClass) {
+        if (Battery.class.equals(deviceClass)) {
+            return new Battery();
+        } else if (Router.class.equals(deviceClass)) {
+            return new Router();
+        } else if (Switch.class.equals(deviceClass)) {
+            return new Switch();
+        } else if (WifiRouter.class.equals(deviceClass)) {
+            return new WifiRouter();
+        }
+        ClassCastException classCastException = new ClassCastException();
+        LOGGER.log(Level.SEVERE, classCastException + "The resulting class is not a device:" + deviceClass);
+        throw classCastException;
+    }
 
     private void readDevice(Device device, DataInputStream dataInput) throws IOException {
         int deviceIn = dataInput.readInt();
@@ -203,7 +223,7 @@ class DeviceServiceImpl implements DeviceService {
         device.setProductionDate(date);
     }
 
-    private void readSpecific(Device device, DataInputStream dataInput) throws IOException {
+    private void readSpecificDevice(Device device, DataInputStream dataInput) throws IOException {
         if (device instanceof Battery) {
             ((Battery) device).setChargeVolume(dataInput.readInt());
         } else if (device instanceof Router && (Router.class.getName().equals(device.getClass().getName()))) {
@@ -217,6 +237,13 @@ class DeviceServiceImpl implements DeviceService {
         }
     }
 
+    private String readValue(String value) {
+        if (LINE_MARKER.equals(value)) {
+            return null;
+        }
+        return value;
+    }
+
     public void writeDevice(Device device, Writer writer) throws IOException {
         NotImplementedException notImplementedException = new NotImplementedException();
         LOGGER.log(Level.SEVERE, notImplementedException + ", An unfinished execution path");
@@ -227,28 +254,5 @@ class DeviceServiceImpl implements DeviceService {
         NotImplementedException notImplementedException = new NotImplementedException();
         LOGGER.log(Level.SEVERE, notImplementedException + ", An unfinished execution path");
         throw notImplementedException;
-    }
-
-
-
-
-    private String readValue(String value) {
-        if (LINE_MARKER.equals(value)) {
-            return null;
-        }
-        return value;
-    }
-
-    private Device deviceInitialization(String deviceClass) {
-        if (Battery.class.getName().equals(deviceClass)) {
-            return new Battery();
-        } else if (Router.class.getName().equals(deviceClass)) {
-            return new Router();
-        } else if (Switch.class.getName().equals(deviceClass)) {
-            return new Switch();
-        } else if (WifiRouter.class.getName().equals(deviceClass)) {
-            return new WifiRouter();
-        }
-        return null;
     }
 }

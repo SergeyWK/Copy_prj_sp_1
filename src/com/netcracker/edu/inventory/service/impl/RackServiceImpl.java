@@ -23,7 +23,7 @@ class RackServiceImpl implements RackService {
         if (rack != null) {
             if (outputStream == null) {
                 IllegalArgumentException illegalArgumentException = new IllegalArgumentException();
-                //todo log
+                LOGGER.log(Level.SEVERE, illegalArgumentException + ", Output stream can't be: " + outputStream);
                 throw illegalArgumentException;
             }
             DataOutputStream dataOutputStream = new DataOutputStream(outputStream);
@@ -36,9 +36,6 @@ class RackServiceImpl implements RackService {
         dataOutputStream.writeInt(rack.getSize());
         dataOutputStream.writeUTF(rack.getTypeOfDevices().getName());
         dataOutputStream.writeInt(rack.getAllDeviceAsArray().length);
-/*        if(rack.getAllDeviceAsArray().length > 0){
-            writeDevice(rack.getAllDeviceAsArray(), dataOutputStream);
-        }   */
         if (rack.getSize() > 0) {
             for (int i = 0; i <= rack.getSize() - 1; i++) {
                 if (rack.getDevAtSlot(i) != null) {
@@ -48,18 +45,7 @@ class RackServiceImpl implements RackService {
                 }
             }
         }
-
-
     }
-
-/*    private void writeDevice(Device[] devices, DataOutputStream dataOutputStream) throws IOException {
-        for (int i = 0; i < devices.length; i++) {
-            if (devices[i] != null) {
-                writeDeviceRack(devices[i], dataOutputStream);
-                writeSpecificDevice(devices[i], dataOutputStream);
-            }
-        }
-    }*/
 
     private void writeDeviceRack(Device device, DataOutputStream dataOutputStream) throws IOException {
         dataOutputStream.writeUTF(device.getClass().getName());
@@ -89,7 +75,7 @@ class RackServiceImpl implements RackService {
             return LINE_MARKER;
         } else if (string.contains("\n")) {
             DeviceValidationException deviceValidationException = new DeviceValidationException();
-            //todo log
+            LOGGER.log(Level.SEVERE, deviceValidationException.getMessage(), deviceValidationException);
             throw deviceValidationException;
         } else {
             return string;
@@ -100,14 +86,15 @@ class RackServiceImpl implements RackService {
     public Rack inputRack(InputStream inputStream) throws IOException, ClassNotFoundException {
         if (inputStream == null) {
             IllegalArgumentException illegalArgumentException = new IllegalArgumentException();
-            //todo log
+            LOGGER.log(Level.SEVERE, illegalArgumentException + ", Input stream can't be: " + inputStream);
             throw illegalArgumentException;
         }
         DataInputStream dataInput = new DataInputStream(inputStream);
         int rackSize = dataInput.readInt();
-        String deviceClass = dataInput.readUTF();
+        String rackClass = dataInput.readUTF();
         int amountDevice = dataInput.readInt();
-        Rack rack = deviceInitialization(rackSize, deviceClass);
+        Class clazzRack = Class.forName(rackClass);
+        Rack rack = rackInitialization(rackSize, clazzRack);
         if (rackSize > 0) {
             String deviceClassName;
             Device device;
@@ -115,15 +102,51 @@ class RackServiceImpl implements RackService {
             for (int i = 0; i < amountDevice; i++) {
                 devIndex = dataInput.readInt();
                 deviceClassName = dataInput.readUTF();
-                device = deviceInitialization(deviceClassName);
-                if (device != null) {
-                    readDevice(device, dataInput);
-                    readSpecific(device, dataInput);
-                    rack.insertDevToSlot(device, devIndex);
+                try {
+                    Class clazz = Class.forName(deviceClassName);
+                    device = deviceInitialization(clazz);
+                    if (device != null) {
+                        readDevice(device, dataInput);
+                        readSpecific(device, dataInput);
+                        rack.insertDevToSlot(device, devIndex);
+                    }
+                } catch (ClassNotFoundException e) {
+                    LOGGER.log(Level.SEVERE, e + deviceClassName);
+                    throw e;
                 }
             }
         }
         return rack;
+    }
+
+    private Rack rackInitialization(int size, Class deviceClass) {
+        if (Battery.class.equals(deviceClass)) {
+            return new RackArrayImpl(size, Battery.class);
+        } else if (Router.class.equals(deviceClass)) {
+            return new RackArrayImpl(size, Router.class);
+        } else if (Switch.class.equals(deviceClass)) {
+            return new RackArrayImpl(size, Switch.class);
+        } else if (WifiRouter.class.equals(deviceClass)) {
+            return new RackArrayImpl(size, WifiRouter.class);
+        } else if (Device.class.equals(deviceClass)) {
+            return new RackArrayImpl(size, Device.class);
+        }
+        return null;
+    }
+
+    private Device deviceInitialization(Class deviceClass) {
+        if (Battery.class.equals(deviceClass)) {
+            return new Battery();
+        } else if (Router.class.equals(deviceClass)) {
+            return new Router();
+        } else if (Switch.class.equals(deviceClass)) {
+            return new Switch();
+        } else if (WifiRouter.class.equals(deviceClass)) {
+            return new WifiRouter();
+        }
+        ClassCastException classCastException = new ClassCastException();
+        LOGGER.log(Level.SEVERE, classCastException + "The resulting class is not a device:" + deviceClass);
+        throw classCastException;
     }
 
     private void readDevice(Device device, DataInputStream dataInput) throws IOException {
@@ -160,34 +183,6 @@ class RackServiceImpl implements RackService {
             return null;
         }
         return value;
-    }
-
-    private Rack deviceInitialization(int size, String deviceClass) {
-        if (Battery.class.getName().equals(deviceClass)) {
-            return new RackArrayImpl(size, Battery.class);
-        } else if (Router.class.getName().equals(deviceClass)) {
-            return new RackArrayImpl(size, Router.class);
-        } else if (Switch.class.getName().equals(deviceClass)) {
-            return new RackArrayImpl(size, Switch.class);
-        } else if (WifiRouter.class.getName().equals(deviceClass)) {
-            return new RackArrayImpl(size, WifiRouter.class);
-        } else if (Device.class.getName().equals(deviceClass)) {
-            return new RackArrayImpl(size, Device.class);
-        }
-        return null;
-    }
-
-    private Device deviceInitialization(String deviceClass) {
-        if (Battery.class.getName().equals(deviceClass)) {
-            return new Battery();
-        } else if (Router.class.getName().equals(deviceClass)) {
-            return new Router();
-        } else if (Switch.class.getName().equals(deviceClass)) {
-            return new Switch();
-        } else if (WifiRouter.class.getName().equals(deviceClass)) {
-            return new WifiRouter();
-        }
-        return null;
     }
 
     public void writeRack(Rack rack, Writer writer) throws IOException {
