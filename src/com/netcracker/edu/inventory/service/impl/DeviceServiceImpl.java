@@ -16,7 +16,6 @@ import java.util.logging.Logger;
 class DeviceServiceImpl implements DeviceService {
 
     static protected Logger LOGGER = Logger.getLogger(DeviceServiceImpl.class.getName());
-    public static final String LINE_MARKER = "\n";
 
     public void sortByIN(Device[] devices) {
         for (int i = 0; i < devices.length; i++) {
@@ -119,7 +118,6 @@ class DeviceServiceImpl implements DeviceService {
         return !field.contains("\n");
     }
 
-
     public void outputDevice(Device device, OutputStream outputStream) throws IOException {
         if (device != null) {
             if (outputStream == null) {
@@ -128,45 +126,9 @@ class DeviceServiceImpl implements DeviceService {
                 throw illegalArgumentException;
             }
             DataOutputStream dataOutputStream = new DataOutputStream(outputStream);
-            writeDevice(device, dataOutputStream);
-            writeSpecificDevice(device, dataOutputStream);
+            ServiceHelper.writeDevice(device, dataOutputStream);
+            ServiceHelper.writeSpecificDevice(device, dataOutputStream);
             dataOutputStream.flush();
-        }
-    }
-
-    private void writeDevice(Device device, DataOutputStream dataOutputStream) throws IOException {
-        dataOutputStream.writeUTF(device.getClass().getName());
-        dataOutputStream.writeInt(device.getIn());
-        dataOutputStream.writeUTF(validObjectDevice(device.getType()));
-        dataOutputStream.writeUTF(validObjectDevice(device.getModel()));
-        dataOutputStream.writeUTF(validObjectDevice(device.getManufacturer()));
-        dataOutputStream.writeLong(device.getProductionDate() == null ? -1 : device.getProductionDate().getTime());
-    }
-
-    private void writeSpecificDevice(Device device, DataOutputStream dataOutputStream) throws IOException {
-        if (device instanceof Battery) {
-            dataOutputStream.writeInt(((Battery) device).getChargeVolume());
-        } else if (device instanceof Router && (Router.class.getName().equals(device.getClass().getName()))) {
-            dataOutputStream.writeInt(((Router) device).getDataRate());
-        } else if (device instanceof Switch) {
-            dataOutputStream.writeInt(((Switch) device).getDataRate());
-            dataOutputStream.writeInt(((Switch) device).getNumberOfPorts());
-        } else if (device instanceof WifiRouter && (WifiRouter.class.getName().equals(device.getClass().getName()))) {
-            dataOutputStream.writeInt(((WifiRouter) device).getDataRate());
-            dataOutputStream.writeUTF(validObjectDevice(((WifiRouter) device).getSecurityProtocol()));
-
-        }
-    }
-
-    private String validObjectDevice(String string) {
-        if (string == null) {
-            return LINE_MARKER;
-        } else if (string.contains("\n")) {
-            DeviceValidationException deviceValidationException = new DeviceValidationException();
-            LOGGER.log(Level.SEVERE, deviceValidationException.getMessage(), deviceValidationException);
-            throw deviceValidationException;
-        } else {
-            return string;
         }
     }
 
@@ -181,67 +143,16 @@ class DeviceServiceImpl implements DeviceService {
         Device device;
         try {
             Class clazz = Class.forName(deviceClassName);
-            device = deviceInitialization(clazz);
+            device = ServiceHelper.deviceInitialization(clazz);
             if (device != null) {
-                readDevice(device, dataInput);
-                readSpecificDevice(device, dataInput);
+                ServiceHelper.readDevice(device, dataInput);
+                ServiceHelper.readSpecificDevice(device, dataInput);
             }
         } catch (ClassNotFoundException e) {
             LOGGER.log(Level.SEVERE, e + deviceClassName);
             throw e;
         }
         return device;
-    }
-
-    private Device deviceInitialization(Class deviceClass) {
-        if (Battery.class.equals(deviceClass)) {
-            return new Battery();
-        } else if (Router.class.equals(deviceClass)) {
-            return new Router();
-        } else if (Switch.class.equals(deviceClass)) {
-            return new Switch();
-        } else if (WifiRouter.class.equals(deviceClass)) {
-            return new WifiRouter();
-        }
-        ClassCastException classCastException = new ClassCastException();
-        LOGGER.log(Level.SEVERE, classCastException + "The resulting class is not a device:" + deviceClass);
-        throw classCastException;
-    }
-
-    private void readDevice(Device device, DataInputStream dataInput) throws IOException {
-        int deviceIn = dataInput.readInt();
-        String deviceType = readValue(dataInput.readUTF());
-        String deviceModel = readValue(dataInput.readUTF());
-        String deviceManufacturer = readValue(dataInput.readUTF());
-        long deviceProductionDate = dataInput.readLong();
-        Date date = deviceProductionDate == -1 ? null : new Date(deviceProductionDate);
-
-        device.setIn(deviceIn);
-        device.setType(deviceType);
-        device.setModel(deviceModel);
-        device.setManufacturer(deviceManufacturer);
-        device.setProductionDate(date);
-    }
-
-    private void readSpecificDevice(Device device, DataInputStream dataInput) throws IOException {
-        if (device instanceof Battery) {
-            ((Battery) device).setChargeVolume(dataInput.readInt());
-        } else if (device instanceof Router && (Router.class.getName().equals(device.getClass().getName()))) {
-            ((Router) device).setDataRate(dataInput.readInt());
-        } else if (device instanceof Switch) {
-            ((Switch) device).setDataRate(dataInput.readInt());
-            ((Switch) device).setNumberOfPorts(dataInput.readInt());
-        } else if (device instanceof WifiRouter && (WifiRouter.class.getName().equals(device.getClass().getName()))) {
-            ((WifiRouter) device).setDataRate(dataInput.readInt());
-            ((WifiRouter) device).setSecurityProtocol(readValue(dataInput.readUTF()));
-        }
-    }
-
-    private String readValue(String value) {
-        if (LINE_MARKER.equals(value)) {
-            return null;
-        }
-        return value;
     }
 
     public void writeDevice(Device device, Writer writer) throws IOException {

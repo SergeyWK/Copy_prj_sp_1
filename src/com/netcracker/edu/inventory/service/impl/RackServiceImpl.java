@@ -41,13 +41,14 @@ class RackServiceImpl implements RackService {
             for (int i = 0; i <= rack.getSize() - 1; i++) {
                 if (rack.getDevAtSlot(i) != null) {
                     dataOutputStream.writeInt(i);
-                    writeDeviceRack(rack.getDevAtSlot(i), dataOutputStream);
-                    writeSpecificDevice(rack.getDevAtSlot(i), dataOutputStream);
+                    ServiceHelper.writeDevice(rack.getDevAtSlot(i), dataOutputStream);
+                    ServiceHelper.writeSpecificDevice(rack.getDevAtSlot(i), dataOutputStream);
                 }
             }
         }
     }
 
+/*
     private void writeDeviceRack(Device device, DataOutputStream dataOutputStream) throws IOException {
         dataOutputStream.writeUTF(device.getClass().getName());
         dataOutputStream.writeInt(device.getIn());
@@ -56,8 +57,9 @@ class RackServiceImpl implements RackService {
         dataOutputStream.writeUTF(validObjectDevice(device.getManufacturer()));
         dataOutputStream.writeLong(device.getProductionDate() == null ? -1 : device.getProductionDate().getTime());
     }
+*/
 
-    private void writeSpecificDevice(Device device, DataOutputStream dataOutputStream) throws IOException {
+ /*   private void writeSpecificDevice(Device device, DataOutputStream dataOutputStream) throws IOException {
         if (device instanceof Battery) {
             dataOutputStream.writeInt(((Battery) device).getChargeVolume());
         } else if (device instanceof Router && (Router.class.getName().equals(device.getClass().getName()))) {
@@ -81,7 +83,7 @@ class RackServiceImpl implements RackService {
         } else {
             return string;
         }
-    }
+    }*/
 
 
     public Rack inputRack(InputStream inputStream) throws IOException, ClassNotFoundException {
@@ -95,7 +97,7 @@ class RackServiceImpl implements RackService {
         String rackClass = dataInput.readUTF();
         int amountDevice = dataInput.readInt();
         Class clazzRack = Class.forName(rackClass);
-        Rack rack = rackInitialization(rackSize, clazzRack);
+        Rack rack = ServiceHelper.rackInitialization(rackSize, clazzRack);
         if (rackSize > 0) {
             String deviceClassName;
             Device device;
@@ -105,10 +107,10 @@ class RackServiceImpl implements RackService {
                 deviceClassName = dataInput.readUTF();
                 try {
                     Class clazz = Class.forName(deviceClassName);
-                    device = deviceInitialization(clazz);
+                    device = ServiceHelper.deviceInitialization(clazz);
                     if (device != null) {
-                        readDevice(device, dataInput);
-                        readSpecific(device, dataInput);
+                        ServiceHelper.readDevice(device, dataInput);
+                        ServiceHelper.readSpecificDevice(device, dataInput);
                         rack.insertDevToSlot(device, devIndex);
                     }
                 } catch (ClassNotFoundException e) {
@@ -120,7 +122,7 @@ class RackServiceImpl implements RackService {
         return rack;
     }
 
-    private Rack rackInitialization(int size, Class deviceClass) {
+  /*  private Rack rackInitialization(int size, Class deviceClass) {
         if (Battery.class.equals(deviceClass)) {
             return new RackArrayImpl(size, Battery.class);
         } else if (Router.class.equals(deviceClass)) {
@@ -133,9 +135,9 @@ class RackServiceImpl implements RackService {
             return new RackArrayImpl(size, Device.class);
         }
         return null;
-    }
+    }*/
 
-    private Device deviceInitialization(Class deviceClass) {
+  /*  private Device deviceInitialization(Class deviceClass) {
         if (Battery.class.equals(deviceClass)) {
             return new Battery();
         } else if (Router.class.equals(deviceClass)) {
@@ -148,9 +150,9 @@ class RackServiceImpl implements RackService {
         ClassCastException classCastException = new ClassCastException();
         LOGGER.log(Level.SEVERE, classCastException + "The resulting class is not a device:" + deviceClass);
         throw classCastException;
-    }
+    }*/
 
-    private void readDevice(Device device, DataInputStream dataInput) throws IOException {
+ /*   private void readDevice(Device device, DataInputStream dataInput) throws IOException {
         int deviceIn = dataInput.readInt();
         String deviceType = readValue(dataInput.readUTF());
         String deviceModel = readValue(dataInput.readUTF());
@@ -165,7 +167,7 @@ class RackServiceImpl implements RackService {
         device.setProductionDate(date);
     }
 
-    private void readSpecific(Device device, DataInputStream dataInput) throws IOException {
+    private void readSpecificDevice(Device device, DataInputStream dataInput) throws IOException {
         if (device instanceof Battery) {
             ((Battery) device).setChargeVolume(dataInput.readInt());
         } else if (device instanceof Router && (Router.class.getName().equals(device.getClass().getName()))) {
@@ -177,14 +179,14 @@ class RackServiceImpl implements RackService {
             ((WifiRouter) device).setDataRate(dataInput.readInt());
             ((WifiRouter) device).setSecurityProtocol(readValue(dataInput.readUTF()));
         }
-    }
+    }*/
 
-    private String readValue(String value) {
+ /*   private String readValue(String value) {
         if (LINE_MARKER.equals(value)) {
             return null;
         }
         return value;
-    }
+    }*/
 
     public void writeRack(Rack rack, Writer writer) throws IOException {
         NotImplementedException notImplementedException = new NotImplementedException();
