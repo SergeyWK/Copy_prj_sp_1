@@ -26,6 +26,7 @@ class RackServiceImpl implements RackService {
                 LOGGER.log(Level.SEVERE, illegalArgumentException + ", Output stream can't be: " + outputStream);
                 throw illegalArgumentException;
             }
+
             DataOutputStream dataOutputStream = new DataOutputStream(outputStream);
             writeRack(rack, dataOutputStream);
             dataOutputStream.flush();
