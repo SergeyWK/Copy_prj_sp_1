@@ -16,6 +16,7 @@ public class ServiceHelper {
 
     static protected Logger LOGGER = Logger.getLogger(ServiceHelper.class.getName());
 
+    
     public static final String LINE_MARKER = "\n";
 
     public static void writeDevice(Device device, DataOutputStream dataOutputStream) throws IOException {
