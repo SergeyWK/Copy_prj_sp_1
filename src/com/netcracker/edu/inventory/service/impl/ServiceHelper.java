@@ -1,3 +1,4 @@
+/*
 package com.netcracker.edu.inventory.service.impl;
 
 import com.netcracker.edu.inventory.exception.DeviceValidationException;
@@ -122,3 +123,4 @@ public class ServiceHelper {
     }
 
 }
+*/
