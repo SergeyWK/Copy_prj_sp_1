@@ -2,6 +2,7 @@ package com.netcracker.edu.inventory.service.impl;
 
 import com.netcracker.edu.inventory.model.Device;
 import com.netcracker.edu.inventory.model.Rack;
+import com.netcracker.edu.inventory.model.impl.*;
 import com.netcracker.edu.inventory.service.RackService;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
@@ -52,7 +53,7 @@ class RackServiceImpl implements RackService {
         String rackClass = dataInput.readUTF();
         int amountDevice = dataInput.readInt();
         Class clazzRack = Class.forName(rackClass);
-        Rack rack = new DeviceServiceImpl().rackInitialization(rackSize, clazzRack);
+        Rack rack = rackInitialization(rackSize, clazzRack);
         if (rackSize > 0) {
             String deviceClassName;
             Device device;
@@ -74,6 +75,21 @@ class RackServiceImpl implements RackService {
             }
         }
         return rack;
+    }
+
+    public Rack rackInitialization(int size, Class deviceClass) {
+        if (Battery.class.equals(deviceClass)) {
+            return new RackArrayImpl(size, Battery.class);
+        } else if (Router.class.equals(deviceClass)) {
+            return new RackArrayImpl(size, Router.class);
+        } else if (Switch.class.equals(deviceClass)) {
+            return new RackArrayImpl(size, Switch.class);
+        } else if (WifiRouter.class.equals(deviceClass)) {
+            return new RackArrayImpl(size, WifiRouter.class);
+        } else if (Device.class.equals(deviceClass)) {
+            return new RackArrayImpl(size, Device.class);
+        }
+        return null;
     }
 
     public void writeRack(Rack rack, Writer writer) throws IOException {

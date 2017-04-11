@@ -158,7 +158,7 @@ class DeviceServiceImpl implements DeviceService {
         } else if (type.contains(LINE_MARKER)) {
             DeviceValidationException deviceValidationException =
                     new DeviceValidationException("DeviceService.outputDevice.");
-            LOGGER.log(Level.SEVERE, deviceValidationException.getMessage(), deviceValidationException);
+            LOGGER.log(Level.SEVERE, deviceValidationException.getMessage(), deviceValidationException + type);
             throw deviceValidationException;
         } else {
             return type;
@@ -200,21 +200,6 @@ class DeviceServiceImpl implements DeviceService {
         ClassCastException classCastException = new ClassCastException();
         LOGGER.log(Level.SEVERE, classCastException + "The resulting class is not a device:" + deviceClass);
         throw classCastException;
-    }
-
-    public Rack rackInitialization(int size, Class deviceClass) {
-        if (Battery.class.equals(deviceClass)) {
-            return new RackArrayImpl(size, Battery.class);
-        } else if (Router.class.equals(deviceClass)) {
-            return new RackArrayImpl(size, Router.class);
-        } else if (Switch.class.equals(deviceClass)) {
-            return new RackArrayImpl(size, Switch.class);
-        } else if (WifiRouter.class.equals(deviceClass)) {
-            return new RackArrayImpl(size, WifiRouter.class);
-        } else if (Device.class.equals(deviceClass)) {
-            return new RackArrayImpl(size, Device.class);
-        }
-        return null;
     }
 
     public void readFieldsOfDevice(Device device, DataInputStream dataInput) throws IOException {
