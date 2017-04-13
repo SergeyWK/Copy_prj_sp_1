@@ -3,7 +3,6 @@ package com.netcracker.edu.inventory.service.impl;
 
 import com.netcracker.edu.inventory.exception.DeviceValidationException;
 import com.netcracker.edu.inventory.model.Device;
-import com.netcracker.edu.inventory.model.Rack;
 import com.netcracker.edu.inventory.model.impl.*;
 import com.netcracker.edu.inventory.service.DeviceService;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
@@ -18,6 +17,7 @@ class DeviceServiceImpl implements DeviceService {
     static protected Logger LOGGER = Logger.getLogger(DeviceServiceImpl.class.getName());
 
     private static final String LINE_MARKER = "\n";
+    private static final String ERROR_MESSAGE = "An unfinished execution path.";
 
     public void sortByIN(Device[] devices) {
         for (int i = 0; i < devices.length; i++) {
@@ -141,14 +141,15 @@ class DeviceServiceImpl implements DeviceService {
         dataOutputStream.writeLong(device.getProductionDate() == null ? -1 : device.getProductionDate().getTime());
         if (device instanceof Battery) {
             dataOutputStream.writeInt(((Battery) device).getChargeVolume());
-        } else if (device instanceof Router && (Router.class.getName().equals(device.getClass().getName()))) {
+        }
+        if (device instanceof Router) {
+            if (device instanceof Switch) {
+                dataOutputStream.writeInt(((Switch) device).getNumberOfPorts());
+            }
+            if (device instanceof WifiRouter) {
+                dataOutputStream.writeUTF(validObjectDevice(((WifiRouter) device).getSecurityProtocol()));
+            }
             dataOutputStream.writeInt(((Router) device).getDataRate());
-        } else if (device instanceof Switch) {
-            dataOutputStream.writeInt(((Switch) device).getDataRate());
-            dataOutputStream.writeInt(((Switch) device).getNumberOfPorts());
-        } else if (device instanceof WifiRouter && (WifiRouter.class.getName().equals(device.getClass().getName()))) {
-            dataOutputStream.writeInt(((WifiRouter) device).getDataRate());
-            dataOutputStream.writeUTF(validObjectDevice(((WifiRouter) device).getSecurityProtocol()));
         }
     }
 
@@ -216,14 +217,15 @@ class DeviceServiceImpl implements DeviceService {
         device.setProductionDate(date);
         if (device instanceof Battery) {
             ((Battery) device).setChargeVolume(dataInput.readInt());
-        } else if (device instanceof Router && (Router.class.getName().equals(device.getClass().getName()))) {
+        }
+        if (device instanceof Router) {
+            if (device instanceof Switch) {
+                ((Switch) device).setNumberOfPorts(dataInput.readInt());
+            }
+            if (device instanceof WifiRouter) {
+                ((WifiRouter) device).setSecurityProtocol(readValue(dataInput.readUTF()));
+            }
             ((Router) device).setDataRate(dataInput.readInt());
-        } else if (device instanceof Switch) {
-            ((Switch) device).setDataRate(dataInput.readInt());
-            ((Switch) device).setNumberOfPorts(dataInput.readInt());
-        } else if (device instanceof WifiRouter && (WifiRouter.class.getName().equals(device.getClass().getName()))) {
-            ((WifiRouter) device).setDataRate(dataInput.readInt());
-            ((WifiRouter) device).setSecurityProtocol(readValue(dataInput.readUTF()));
         }
     }
 
@@ -236,13 +238,13 @@ class DeviceServiceImpl implements DeviceService {
 
     public void writeDevice(Device device, Writer writer) throws IOException {
         NotImplementedException notImplementedException = new NotImplementedException();
-        LOGGER.log(Level.SEVERE, notImplementedException + ", An unfinished execution path.");
+        LOGGER.log(Level.SEVERE, ERROR_MESSAGE, notImplementedException);
         throw notImplementedException;
     }
 
     public Device readDevice(Reader reader) throws IOException, ClassNotFoundException {
         NotImplementedException notImplementedException = new NotImplementedException();
-        LOGGER.log(Level.SEVERE, notImplementedException + ", An unfinished execution path.");
+        LOGGER.log(Level.SEVERE, ERROR_MESSAGE, notImplementedException);
         throw notImplementedException;
     }
 
