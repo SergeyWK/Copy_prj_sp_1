@@ -104,7 +104,12 @@ class DeviceServiceImpl implements DeviceService {
             String deviceModel = device.getModel();
             String deviceManufacturer = device.getManufacturer();
             String deviceType = device.getType();
-            String routerSecurityProtocol = ((WifiRouter) device).getSecurityProtocol();
+            String routerSecurityProtocol = null;
+            if (device instanceof Router) {
+                if (device instanceof WifiRouter) {
+                    routerSecurityProtocol = ((WifiRouter) device).getSecurityProtocol();
+                }
+            }
             boolean validObject = (isValidField(deviceModel)) && (isValidField(deviceManufacturer))
                     && (isValidField(deviceType) && (isValidField(routerSecurityProtocol)));
             return validObject;
@@ -121,46 +126,43 @@ class DeviceServiceImpl implements DeviceService {
 
     public void outputDevice(Device device, OutputStream outputStream) throws IOException {
         if (device != null) {
+            if (!isValidDeviceForOutputToStream(device)) {
+                DeviceValidationException deviceValidationException =
+                        new DeviceValidationException("DeviceService.outputDevice.");
+                LOGGER.log(Level.SEVERE, deviceValidationException.getMessage() + device, deviceValidationException);
+               throw deviceValidationException;
+            }
             if (outputStream == null) {
                 IllegalArgumentException illegalArgumentException = new IllegalArgumentException();
                 LOGGER.log(Level.SEVERE, illegalArgumentException + ", Output stream can't be: " + outputStream);
-                throw illegalArgumentException;
+               throw illegalArgumentException;
             }
             DataOutputStream dataOutputStream = new DataOutputStream(outputStream);
-            writeFieldsOfDevice(device, dataOutputStream);
+            dataOutputStream.writeUTF(device.getClass().getName());
+            dataOutputStream.writeInt(device.getIn());
+            dataOutputStream.writeUTF(validObjectDevice(device.getType()));
+            dataOutputStream.writeUTF(validObjectDevice(device.getModel()));
+            dataOutputStream.writeUTF(validObjectDevice(device.getManufacturer()));
+            dataOutputStream.writeLong(device.getProductionDate() == null ? -1 : device.getProductionDate().getTime());
+            if (device instanceof Battery) {
+                dataOutputStream.writeInt(((Battery) device).getChargeVolume());
+            }
+            if (device instanceof Router) {
+                if (device instanceof Switch) {
+                    dataOutputStream.writeInt(((Switch) device).getNumberOfPorts());
+                }
+                if (device instanceof WifiRouter) {
+                    dataOutputStream.writeUTF(validObjectDevice(((WifiRouter) device).getSecurityProtocol()));
+                }
+                dataOutputStream.writeInt(((Router) device).getDataRate());
+            }
             dataOutputStream.flush();
-        }
-    }
-
-    public void writeFieldsOfDevice(Device device, DataOutputStream dataOutputStream) throws IOException {
-        dataOutputStream.writeUTF(device.getClass().getName());
-        dataOutputStream.writeInt(device.getIn());
-        dataOutputStream.writeUTF(validObjectDevice(device.getType()));
-        dataOutputStream.writeUTF(validObjectDevice(device.getModel()));
-        dataOutputStream.writeUTF(validObjectDevice(device.getManufacturer()));
-        dataOutputStream.writeLong(device.getProductionDate() == null ? -1 : device.getProductionDate().getTime());
-        if (device instanceof Battery) {
-            dataOutputStream.writeInt(((Battery) device).getChargeVolume());
-        }
-        if (device instanceof Router) {
-            if (device instanceof Switch) {
-                dataOutputStream.writeInt(((Switch) device).getNumberOfPorts());
-            }
-            if (device instanceof WifiRouter) {
-                dataOutputStream.writeUTF(validObjectDevice(((WifiRouter) device).getSecurityProtocol()));
-            }
-            dataOutputStream.writeInt(((Router) device).getDataRate());
         }
     }
 
     public String validObjectDevice(String type) {
         if (type == null) {
             return LINE_MARKER;
-        } else if (type.contains(LINE_MARKER)) {
-            DeviceValidationException deviceValidationException =
-                    new DeviceValidationException("DeviceService.outputDevice.");
-            LOGGER.log(Level.SEVERE, deviceValidationException.getMessage(), deviceValidationException + type);
-            throw deviceValidationException;
         } else {
             return type;
         }
