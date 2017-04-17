@@ -20,33 +20,29 @@ class RackServiceImpl implements RackService {
     public void outputRack(Rack rack, OutputStream outputStream) throws IOException {
         if (rack != null) {
             if (outputStream == null) {
-                IllegalArgumentException illegalArgumentException = new IllegalArgumentException();
-                LOGGER.log(Level.SEVERE, illegalArgumentException + ", Output stream can't be: " + outputStream);
+                IllegalArgumentException illegalArgumentException = new IllegalArgumentException("Output stream can't be: ");
+                LOGGER.log(Level.SEVERE, illegalArgumentException.getMessage() + outputStream, illegalArgumentException);
                 throw illegalArgumentException;
             }
             DataOutputStream dataOutputStream = new DataOutputStream(outputStream);
-            writeRackData(rack, dataOutputStream);
-            dataOutputStream.flush();
-        }
-    }
-
-    private void writeRackData(Rack rack, DataOutputStream dataOutputStream) throws IOException {
-        dataOutputStream.writeInt(rack.getSize());
-        dataOutputStream.writeUTF(rack.getTypeOfDevices().getName());
-        for (int i = 0; i < rack.getSize(); i++) {
-            if (rack.getDevAtSlot(i) != null) {
-                dataOutputStream.writeUTF("");
-                new DeviceServiceImpl().outputDevice(rack.getDevAtSlot(i), dataOutputStream);
-            } else {
-                dataOutputStream.writeUTF(LINE_MARKER);
+            dataOutputStream.writeInt(rack.getSize());
+            dataOutputStream.writeUTF(rack.getTypeOfDevices().getName());
+            for (int i = 0; i < rack.getSize(); i++) {
+                if (rack.getDevAtSlot(i) != null) {
+                    dataOutputStream.writeUTF("");
+                    new DeviceServiceImpl().outputDevice(rack.getDevAtSlot(i), dataOutputStream);
+                } else {
+                    dataOutputStream.writeUTF(LINE_MARKER);
+                }
             }
+            dataOutputStream.flush();
         }
     }
 
     public Rack inputRack(InputStream inputStream) throws IOException, ClassNotFoundException {
         if (inputStream == null) {
-            IllegalArgumentException illegalArgumentException = new IllegalArgumentException();
-            LOGGER.log(Level.SEVERE, illegalArgumentException + ", Input stream can't be: " + inputStream);
+            IllegalArgumentException illegalArgumentException = new IllegalArgumentException("Input stream can't be: ");
+            LOGGER.log(Level.SEVERE, illegalArgumentException.getMessage() + inputStream, illegalArgumentException);
             throw illegalArgumentException;
         }
         DataInputStream dataInput = new DataInputStream(inputStream);
@@ -69,7 +65,7 @@ class RackServiceImpl implements RackService {
                         rack.insertDevToSlot(device, i);
                     }
                 } catch (ClassNotFoundException e) {
-                    LOGGER.log(Level.SEVERE, e + deviceClassName);
+                    LOGGER.log(Level.SEVERE, deviceClassName, e);
                     throw e;
                 }
             }

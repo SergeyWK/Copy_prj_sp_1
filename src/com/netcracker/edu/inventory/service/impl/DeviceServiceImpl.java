@@ -16,7 +16,7 @@ class DeviceServiceImpl implements DeviceService {
 
     static protected Logger LOGGER = Logger.getLogger(DeviceServiceImpl.class.getName());
 
-    private static final String LINE_MARKER = "\n";
+    static final String LINE_MARKER = "\n";
     private static final String ERROR_MESSAGE = "An unfinished execution path.";
 
     public void sortByIN(Device[] devices) {
@@ -124,18 +124,23 @@ class DeviceServiceImpl implements DeviceService {
         return !field.contains(LINE_MARKER);
     }
 
+    @Override
+    public boolean isValidDeviceForWriteToStream(Device device) {
+        return false;
+    }
+
     public void outputDevice(Device device, OutputStream outputStream) throws IOException {
         if (device != null) {
             if (!isValidDeviceForOutputToStream(device)) {
                 DeviceValidationException deviceValidationException =
                         new DeviceValidationException("DeviceService.outputDevice.");
                 LOGGER.log(Level.SEVERE, deviceValidationException.getMessage() + device, deviceValidationException);
-               throw deviceValidationException;
+                throw deviceValidationException;
             }
             if (outputStream == null) {
-                IllegalArgumentException illegalArgumentException = new IllegalArgumentException();
-                LOGGER.log(Level.SEVERE, illegalArgumentException + ", Output stream can't be: " + outputStream);
-               throw illegalArgumentException;
+                IllegalArgumentException illegalArgumentException = new IllegalArgumentException("Output stream can't be: ");
+                LOGGER.log(Level.SEVERE, illegalArgumentException.getMessage() + outputStream, illegalArgumentException);
+                throw illegalArgumentException;
             }
             DataOutputStream dataOutputStream = new DataOutputStream(outputStream);
             dataOutputStream.writeUTF(device.getClass().getName());
@@ -170,8 +175,8 @@ class DeviceServiceImpl implements DeviceService {
 
     public Device inputDevice(InputStream inputStream) throws IOException, ClassNotFoundException {
         if (inputStream == null) {
-            IllegalArgumentException illegalArgumentException = new IllegalArgumentException();
-            LOGGER.log(Level.SEVERE, illegalArgumentException + ", Input stream can't be: " + inputStream);
+            IllegalArgumentException illegalArgumentException = new IllegalArgumentException("Input stream can't be: ");
+            LOGGER.log(Level.SEVERE, illegalArgumentException.getMessage() + inputStream, illegalArgumentException);
             throw illegalArgumentException;
         }
         DataInputStream dataInput = new DataInputStream(inputStream);
@@ -184,7 +189,7 @@ class DeviceServiceImpl implements DeviceService {
                 readFieldsOfDevice(device, dataInput);
             }
         } catch (ClassNotFoundException e) {
-            LOGGER.log(Level.SEVERE, e + deviceClassName);
+            LOGGER.log(Level.SEVERE, deviceClassName, e);
             throw e;
         }
         return device;
@@ -200,8 +205,8 @@ class DeviceServiceImpl implements DeviceService {
         } else if (WifiRouter.class.equals(deviceClass)) {
             return new WifiRouter();
         }
-        ClassCastException classCastException = new ClassCastException();
-        LOGGER.log(Level.SEVERE, classCastException + "The resulting class is not a device:" + deviceClass);
+        ClassCastException classCastException = new ClassCastException("The resulting class is not a device: ");
+        LOGGER.log(Level.SEVERE, classCastException.getMessage()+deviceClass, classCastException);
         throw classCastException;
     }
 
