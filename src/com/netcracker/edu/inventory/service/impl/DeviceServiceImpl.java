@@ -126,6 +126,8 @@ class DeviceServiceImpl implements DeviceService {
 
     @Override
     public boolean isValidDeviceForWriteToStream(Device device) {
+
+
         return false;
     }
 

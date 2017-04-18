@@ -14,8 +14,8 @@ class RackServiceImpl implements RackService {
 
     static protected Logger LOGGER = Logger.getLogger(RackServiceImpl.class.getName());
 
-    private static final String ERROR_MESSAGE = "An unfinished execution path.";
     private static final String LINE_MARKER = "\n";
+    private static final String ERROR_MESSAGE = "An unfinished execution path.";
 
     public void outputRack(Rack rack, OutputStream outputStream) throws IOException {
         if (rack != null) {
@@ -48,27 +48,28 @@ class RackServiceImpl implements RackService {
         DataInputStream dataInput = new DataInputStream(inputStream);
         int rackSize = dataInput.readInt();
         String rackClass = dataInput.readUTF();
-        Class clazzRack = Class.forName(rackClass);
-        Rack rack = new RackArrayImpl(rackSize, clazzRack);
-        String deviceClassName;
-        Device device;
-        String deviceNull;
-        for (int i = 0; i < rackSize; i++) {
-            deviceNull = dataInput.readUTF();
-            if (!deviceNull.equals(LINE_MARKER)) {
-                deviceClassName = dataInput.readUTF();
-                try {
-                    Class clazz = Class.forName(deviceClassName);
-                    device = new DeviceServiceImpl().deviceInitialization(clazz);
+        Rack rack;
+        try {
+            Class clazzRack = Class.forName(rackClass);
+            rack = new RackArrayImpl(rackSize, clazzRack);
+            String deviceClassName;
+            Device device;
+            String deviceNull;
+            for (int i = 0; i < rackSize; i++) {
+                deviceNull = dataInput.readUTF();
+                if (!deviceNull.equals(LINE_MARKER)) {
+                    deviceClassName = dataInput.readUTF();
+                    Class clazzDevice = Class.forName(deviceClassName);
+                    device = new DeviceServiceImpl().deviceInitialization(clazzDevice);
                     if (device != null) {
                         new DeviceServiceImpl().readFieldsOfDevice(device, dataInput);
                         rack.insertDevToSlot(device, i);
                     }
-                } catch (ClassNotFoundException e) {
-                    LOGGER.log(Level.SEVERE, deviceClassName, e);
-                    throw e;
                 }
             }
+        } catch (ClassNotFoundException e) {
+            LOGGER.log(Level.SEVERE, "Class not found", e);
+            throw e;
         }
         return rack;
     }
