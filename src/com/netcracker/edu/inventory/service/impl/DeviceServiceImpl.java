@@ -17,7 +17,7 @@ class DeviceServiceImpl implements DeviceService {
     static protected Logger LOGGER = Logger.getLogger(DeviceServiceImpl.class.getName());
 
     static final String LINE_MARKER = "\n";
-    static final String LINE_MARKER2 = "\n";
+    static final String LINE_MARKER_2 = "|";
     private static final String ERROR_MESSAGE = "An unfinished execution path.";
 
     public void sortByIN(Device[] devices) {
@@ -107,6 +107,13 @@ class DeviceServiceImpl implements DeviceService {
         return false;
     }
 
+    public boolean isValidDeviceForWriteToStream(Device device) {
+        if (device != null) {
+            return isValidDevice(device, LINE_MARKER_2);
+        }
+        return false;
+    }
+
     private boolean isValidDevice(Device device, String marker) {
         if (device != null) {
             String deviceModel = device.getModel();
@@ -130,14 +137,6 @@ class DeviceServiceImpl implements DeviceService {
             return true;
         }
         return !field.contains(marker);
-    }
-
-    @Override
-    public boolean isValidDeviceForWriteToStream(Device device) {
-        if (device != null) {
-            return isValidDevice(device, LINE_MARKER2);
-        }
-        return false;
     }
 
     public void outputDevice(Device device, OutputStream outputStream) throws IOException {
@@ -217,7 +216,7 @@ class DeviceServiceImpl implements DeviceService {
             return new WifiRouter();
         }
         ClassCastException classCastException = new ClassCastException("The resulting class is not a device: ");
-        LOGGER.log(Level.SEVERE, classCastException.getMessage()+deviceClass, classCastException);
+        LOGGER.log(Level.SEVERE, classCastException.getMessage() + deviceClass, classCastException);
         throw classCastException;
     }
 

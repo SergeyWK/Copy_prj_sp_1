@@ -282,6 +282,13 @@ public class RackArrayImplTest {
         rackPartlyFilled.insertDevToSlot(badBattery, 5);
     }
 
+    @Test
+    public void insertDevToSlot_ChildDeviceType() throws Exception {
+        Battery child = new Battery() {};
+        child.setIn(5);
+        rackPartlyFilled.insertDevToSlot(child, 5);
+    }
+
     @Test(expected = DeviceValidationException.class)
     public void insertDevToSlot_DeviceValidation_DeviceNull_ToFilled() throws Exception {
         rackPartlyFilled.insertDevToSlot(null, 4);
