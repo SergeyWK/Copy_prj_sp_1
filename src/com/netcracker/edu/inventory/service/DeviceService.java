@@ -1,6 +1,7 @@
 package com.netcracker.edu.inventory.service;
 
 import com.netcracker.edu.inventory.model.Device;
+import com.netcracker.edu.inventory.model.Rack;
 
 import java.io.*;
 
@@ -9,7 +10,7 @@ import java.io.*;
  * Created by makovetskyi on 05.10.2016.
  */
 public interface DeviceService {
-	
+
     /**
      * Sort array of Device-s by identification number.
      *
@@ -65,6 +66,15 @@ public interface DeviceService {
      *         false - if device is not valid
      */
     boolean isValidDeviceForOutputToStream(Device device);
+
+    /**
+     * Method check validity of device for write to char output stream
+     *
+     * @param device - validated device
+     * @return true - if device is valid
+     *         false - if device is not valid
+     */
+    boolean isValidDeviceForWriteToStream(Device device);
 
     /**
      * Write Device instance in to binary stream
