@@ -17,6 +17,7 @@ class DeviceServiceImpl implements DeviceService {
     static protected Logger LOGGER = Logger.getLogger(DeviceServiceImpl.class.getName());
 
     static final String LINE_MARKER = "\n";
+    static final String LINE_MARKER2 = "\n";
     private static final String ERROR_MESSAGE = "An unfinished execution path.";
 
     public void sortByIN(Device[] devices) {
@@ -101,6 +102,13 @@ class DeviceServiceImpl implements DeviceService {
 
     public boolean isValidDeviceForOutputToStream(Device device) {
         if (device != null) {
+            return isValidDevice(device, LINE_MARKER);
+        }
+        return false;
+    }
+
+    private boolean isValidDevice(Device device, String marker) {
+        if (device != null) {
             String deviceModel = device.getModel();
             String deviceManufacturer = device.getManufacturer();
             String deviceType = device.getType();
@@ -110,24 +118,25 @@ class DeviceServiceImpl implements DeviceService {
                     routerSecurityProtocol = ((WifiRouter) device).getSecurityProtocol();
                 }
             }
-            boolean validObject = (isValidField(deviceModel)) && (isValidField(deviceManufacturer))
-                    && (isValidField(deviceType) && (isValidField(routerSecurityProtocol)));
+            boolean validObject = (isValidField(deviceModel, marker)) && (isValidField(deviceManufacturer, marker))
+                    && (isValidField(deviceType, marker) && (isValidField(routerSecurityProtocol, marker)));
             return validObject;
         }
         return false;
     }
 
-    private boolean isValidField(String field) {
+    private boolean isValidField(String field, String marker) {
         if (field == null) {
             return true;
         }
-        return !field.contains(LINE_MARKER);
+        return !field.contains(marker);
     }
 
     @Override
     public boolean isValidDeviceForWriteToStream(Device device) {
-
-
+        if (device != null) {
+            return isValidDevice(device, LINE_MARKER2);
+        }
         return false;
     }
 
