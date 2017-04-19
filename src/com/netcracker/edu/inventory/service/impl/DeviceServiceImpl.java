@@ -102,19 +102,19 @@ class DeviceServiceImpl implements DeviceService {
 
     public boolean isValidDeviceForOutputToStream(Device device) {
         if (device != null) {
-            return isValidDevice(device, LINE_MARKER);
+            return isValidDevice(device, LINE_MARKER, LINE_MARKER);
         }
         return false;
     }
 
     public boolean isValidDeviceForWriteToStream(Device device) {
         if (device != null) {
-            return isValidDevice(device, LINE_MARKER_2);
+            return isValidDevice(device, LINE_MARKER, LINE_MARKER_2);
         }
         return false;
     }
 
-    private boolean isValidDevice(Device device, String marker) {
+    private boolean isValidDevice(Device device, String marker, String marker2) {
         if (device != null) {
             String deviceModel = device.getModel();
             String deviceManufacturer = device.getManufacturer();
@@ -125,18 +125,19 @@ class DeviceServiceImpl implements DeviceService {
                     routerSecurityProtocol = ((WifiRouter) device).getSecurityProtocol();
                 }
             }
-            boolean validObject = (isValidField(deviceModel, marker)) && (isValidField(deviceManufacturer, marker))
-                    && (isValidField(deviceType, marker) && (isValidField(routerSecurityProtocol, marker)));
+            boolean validObject = (isValidField(deviceModel, marker, marker2)) && (isValidField(deviceManufacturer, marker, marker2))
+                    && (isValidField(deviceType, marker, marker2) && (isValidField(routerSecurityProtocol, marker, marker2)));
             return validObject;
         }
         return false;
     }
 
-    private boolean isValidField(String field, String marker) {
+
+    private boolean isValidField(String field, String marker1, String marker2) {
         if (field == null) {
             return true;
         }
-        return !field.contains(marker);
+        return !(field.contains(marker1) || field.contains(marker2));
     }
 
     public void outputDevice(Device device, OutputStream outputStream) throws IOException {
