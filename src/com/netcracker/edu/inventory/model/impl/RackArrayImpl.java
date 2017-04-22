@@ -54,6 +54,16 @@ public class RackArrayImpl implements Rack {
         return freeSize;
     }
 
+    /*public int getFreeSize(){
+        int freeSize=0;
+        for (int i = 0;i<arrayImpl.length;i++){
+            if(arrayImpl[i]==null) {
+                freeSize=arrayImpl.length-1;}
+
+        }return freeSize;
+    }*/
+
+
     public Device getDevAtSlot(int index) {
         if (checkIndex(index) && arrayImpl[index] != null) {
             return arrayImpl[index];

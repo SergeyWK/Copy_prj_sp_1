@@ -2,12 +2,13 @@ package com.netcracker.edu.inventory.model.impl;
 
 import com.netcracker.edu.inventory.model.Device;
 
+import java.io.Serializable;
 import java.util.Date;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 
-public abstract class AbstractDevice implements Device {
+public abstract class AbstractDevice implements Device, Serializable {
     static protected Logger LOGGER = Logger.getLogger(AbstractDevice.class.getName());
 
     protected int in;
@@ -15,6 +16,9 @@ public abstract class AbstractDevice implements Device {
     protected String manufacturer;
     protected String model;
     protected Date productionDate;
+
+    public AbstractDevice() {
+    }
 
     public int getIn() {
         return in;
