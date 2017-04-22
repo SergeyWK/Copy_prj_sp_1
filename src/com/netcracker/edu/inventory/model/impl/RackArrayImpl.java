@@ -5,16 +5,16 @@ import com.netcracker.edu.inventory.model.Device;
 import com.netcracker.edu.inventory.model.Rack;
 import com.netcracker.edu.inventory.service.impl.ServiceImpl;
 
+import java.io.Serializable;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class RackArrayImpl implements Rack {
+public class RackArrayImpl implements Rack, Serializable {
 
     static protected Logger LOGGER = Logger.getLogger(RackArrayImpl.class.getName());
 
     protected Device[] arrayImpl;
     private final Class clazz;
-
 
     public RackArrayImpl(int size, Class clazz) {
         if (clazz == null) {
@@ -122,7 +122,7 @@ public class RackArrayImpl implements Rack {
     }
 
     public Class getTypeOfDevices() {
-        return  clazz;
+        return clazz;
     }
 
   /*  public Device[] getAllDeviceAsArray() {
