@@ -268,27 +268,30 @@ class DeviceServiceImpl implements DeviceService {
                 throw illegalArgumentException;
             }
             BufferedWriter bufferedWriter = new BufferedWriter(writer);
-            //StringBuffer deviceString = new StringBuffer(device.getClass().getName() + LINE_MARKER);
-
-
-            //bufferedWriter.write(device.getClass().getName() + LINE_MARKER);
-//           bufferedWriter.write(device.getIn() + STR_MARKER_2 + STR_MARKER);
-//            bufferedWriter.write(validWriteDevice(device.getType()));
-//            bufferedWriter.write(validWriteDevice(device.getModel()));
-//            bufferedWriter.write(validWriteDevice(device.getManufacturer()));
-//            bufferedWriter.write(String.valueOf(device.getProductionDate() == null ? STR_MARKER_2 + -1 : STR_MARKER_2 +
-//                    device.getProductionDate().getTime()) + STR_MARKER_2 + STR_MARKER);
-
-            String str = device.getClass().getName() + LINE_MARKER
-                    + device.getIn() + STR_MARKER_2 + STR_MARKER
-                    + (validWriteDevice(device.getType()))
-                    + (validWriteDevice(device.getModel()))
-                    + (validWriteDevice(device.getManufacturer()))
-                    + String.valueOf(device.getProductionDate() == null ? STR_MARKER_2 + -1 : STR_MARKER_2
-                    + device.getProductionDate().getTime()) + STR_MARKER_2 + STR_MARKER;
-
-        /*    String test = null;
+            StringBuffer devString = new StringBuffer(device.getClass().getName() + LINE_MARKER);
+            devString.append(device.getIn()).append(STR_MARKER_2 + STR_MARKER);
+            devString.append(appendDeviceFields(device.getType()));
+            devString.append(appendDeviceFields(device.getModel()));
+            devString.append(appendDeviceFields(device.getManufacturer()));
+            devString.append(String.valueOf(device.getProductionDate() == null ? STR_MARKER_2 + (-1) : STR_MARKER_2 +
+                    device.getProductionDate().getTime()) + STR_MARKER_2 + STR_MARKER);
             if (device instanceof Battery) {
+                devString.append(appendDeviceFields(String.valueOf((Battery) device)).getChargeVolume());
+            }
+            if (device instanceof Router) {
+                if (device instanceof Switch) {
+                    devString.append(((Switch) device).getNumberOfPorts());
+                }
+                if (device instanceof WifiRouter) {
+                    devString.append(appendDeviceFields(((WifiRouter) device).getSecurityProtocol()));
+                }
+                devString.append(((Router) device).getDataRate());
+            }
+
+
+
+
+         /*   if (device instanceof Battery) {
                 bufferedWriter.write(STR_MARKER_2 + ((Battery) device).getChargeVolume() + STR_MARKER_2 + STR_MARKER);
                 test = String.valueOf(STR_MARKER_2 + ((Battery) device).getChargeVolume() + STR_MARKER_2 + STR_MARKER);
             }
@@ -305,16 +308,18 @@ class DeviceServiceImpl implements DeviceService {
                 }
             }*/
 
-            System.out.println(str);
-            StringBuffer forTest = new StringBuffer(str + LINE_MARKER);
-            bufferedWriter.write(forTest.toString());
+            //System.out.println(str);
             // deviceString.append(LINE_MARKER);
             // bufferedWriter.write(deviceString.toString());
+
+            System.out.println(devString.toString());
+            devString.append(LINE_MARKER);
+            bufferedWriter.write(devString.toString());
             bufferedWriter.flush();
         }
     }
 
-    public String validWriteDevice(String type) {
+    public String appendDeviceFields(String type) {
         if (type == null) {
             return STR_MARKER_2 + STR_MARKER;
         } else {
@@ -345,45 +350,26 @@ class DeviceServiceImpl implements DeviceService {
         return device;
     }
 
-    private String readStringFromBuffer(Reader reader) throws IOException {
-        char c;
-        StringBuilder stringBuilder = new StringBuilder();
-        while (true) {
-            c = ((char) reader.read());
-            if (c == LINE_MARKER.charAt(0) || c == 0xFFFF) break;
-            stringBuilder.append(c);
-        }
-        return stringBuilder.toString();
-    }
-
     public void readFieldsOfDevice(Device device, String deviceFields) throws IOException {
-        StringTokenizer readFieldsString = new StringTokenizer(deviceFields, STR_MARKER);
-        String [] feildDevice = new  String[5];
-        int i=0;
-        while (readFieldsString.hasMoreTokens()){
-            feildDevice[i] = readFieldsString.nextToken();
-            i++;
+        StringTokenizer deviceField = new StringTokenizer(deviceFields, " |");
+        device.setIn(Integer.parseInt(deviceField.nextToken()));
+        deviceField.nextToken(STR_MARKER);
+        String devType = deviceField.nextToken(STR_MARKER);
+        device.setType(devType.equals(" ") ? null : devType.substring(1, devType.length() - 1));
+        String devModel = deviceField.nextToken(STR_MARKER);
+        device.setModel(devModel.equals(" ") ? null : devModel.substring(1, devModel.length() - 1));
+        String devManufacturer = deviceField.nextToken(STR_MARKER);
+        device.setManufacturer(devManufacturer.equals(" ") ? null : devManufacturer.substring(1, devManufacturer.length() - 1));
+        String devDate = deviceField.nextToken(STR_MARKER);
+        if (!devDate.equals(" ")) {
+            Long date = Long.parseLong(devDate.trim());
+            if (date != -1) {
+                device.setProductionDate(new Date(date));
+            } else {
+                device.setProductionDate(null);
+            }
         }
-      int deviceIn = Integer.parseInt(feildDevice[0]);
-       String deviceType = feildDevice[1];
-       String deviceModel = feildDevice[2];
 
-       System.out.println(deviceModel);
-
-
-
-
-//         int deviceIn = dataInput.readInt();
-//        String deviceType = readValue(dataInput.readUTF());
-//        String deviceModel = readValue(dataInput.readUTF());
-//        String deviceManufacturer = readValue(dataInput.readUTF());
-//        long deviceProductionDate = dataInput.readLong();
-//        Date date = deviceProductionDate == -1 ? null : new Date(deviceProductionDate);
-//        device.setIn(deviceIn);
-//        device.setType(deviceType);
-//        device.setModel(deviceModel);
-//        device.setManufacturer(deviceManufacturer);
-//        device.setProductionDate(date);
 //        if (device instanceof Battery) {
 //            ((Battery) device).setChargeVolume(dataInput.readInt());
 //        }
@@ -396,6 +382,17 @@ class DeviceServiceImpl implements DeviceService {
 //            }
 //            ((Router) device).setDataRate(dataInput.readInt());
 //        }
+    }
+
+    private String readStringFromBuffer(Reader reader) throws IOException {
+        char c;
+        StringBuilder stringBuilder = new StringBuilder();
+        while (true) {
+            c = ((char) reader.read());
+            if (c == LINE_MARKER.charAt(0) || c == 0xFFFF) break;
+            stringBuilder.append(c);
+        }
+        return stringBuilder.toString();
     }
 
 }
