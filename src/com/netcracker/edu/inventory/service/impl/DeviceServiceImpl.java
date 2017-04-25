@@ -275,19 +275,6 @@ class DeviceServiceImpl implements DeviceService {
             devString.append(appendDeviceFields(device.getManufacturer()));
             devString.append(String.valueOf(device.getProductionDate() == null ? STR_MARKER_2 + (-1) : STR_MARKER_2 +
                     device.getProductionDate().getTime()) + STR_MARKER_2 + STR_MARKER);
-         /*   if (device instanceof Battery) {
-                devString.append(appendDeviceFields(String.valueOf((((Battery) device)).getChargeVolume())));
-            }
-            if (device instanceof Router) {
-                devString.append(appendDeviceFields(String.valueOf(((Router) device).getDataRate())));
-                if (device instanceof Switch) {
-                    devString.append(appendDeviceFields(String.valueOf((((Switch) device)).getNumberOfPorts())));
-                }
-                if (device instanceof WifiRouter) {
-                    devString.append(appendDeviceFields(((WifiRouter) device).getSecurityProtocol()));
-                }
-            }*/
-
             if (Battery.class.isAssignableFrom(device.getClass())) {
                 devString.append(appendDeviceFields(String.valueOf((((Battery) device)).getChargeVolume())));
             }
@@ -358,6 +345,35 @@ class DeviceServiceImpl implements DeviceService {
                 device.setProductionDate(null);
             }
         }
+        if (Battery.class.isAssignableFrom(device.getClass())) {
+            String devChargeVolume = deviceField.nextToken(STR_MARKER);
+            int value = Integer.parseInt(devChargeVolume.trim());
+            ((Battery) device).setChargeVolume(value);
+        }
+        if (Router.class.isAssignableFrom(device.getClass())) {
+            String devDataRate = deviceField.nextToken(STR_MARKER);
+            int value = Integer.parseInt(devDataRate.trim());
+            ((Router) device).setDataRate(value);
+        }
+        if (Switch.class.isAssignableFrom(device.getClass())) {
+            String devNumOfPorts = deviceField.nextToken(STR_MARKER);
+            int value = Integer.parseInt(devNumOfPorts.trim());
+            ((Switch) device).setNumberOfPorts(value);
+        }
+        if (WifiRouter.class.isAssignableFrom(device.getClass())) {
+            String devSecProtocol = deviceField.nextToken(STR_MARKER);
+            //   WifiRouter wifiDevice = (WifiRouter) device;
+            if (!devSecProtocol.equals(" ")) {
+                // String value = devSecProtocol.trim();
+                ((WifiRouter) device).setSecurityProtocol(devSecProtocol.replaceAll("[\\s]{3}"," "));
+                System.out.println(devSecProtocol);
+                System.out.println(devSecProtocol.toCharArray());
+                System.out.println("WTF");
+            } else {
+                ((WifiRouter) device).setSecurityProtocol(null);
+            }
+        }
+
 
 //        if (device instanceof Battery) {
 //            ((Battery) device).setChargeVolume(dataInput.readInt());

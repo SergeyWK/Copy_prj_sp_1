@@ -80,6 +80,7 @@ class RackServiceImpl implements RackService {
                 LOGGER.log(Level.SEVERE, illegalArgumentException.getMessage() + writer, illegalArgumentException);
                 throw illegalArgumentException;
             }
+
         }
     }
 
