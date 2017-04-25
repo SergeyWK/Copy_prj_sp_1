@@ -275,43 +275,32 @@ class DeviceServiceImpl implements DeviceService {
             devString.append(appendDeviceFields(device.getManufacturer()));
             devString.append(String.valueOf(device.getProductionDate() == null ? STR_MARKER_2 + (-1) : STR_MARKER_2 +
                     device.getProductionDate().getTime()) + STR_MARKER_2 + STR_MARKER);
-            if (device instanceof Battery) {
-                devString.append(appendDeviceFields(String.valueOf((Battery) device)).getChargeVolume());
+         /*   if (device instanceof Battery) {
+                devString.append(appendDeviceFields(String.valueOf((((Battery) device)).getChargeVolume())));
             }
             if (device instanceof Router) {
+                devString.append(appendDeviceFields(String.valueOf(((Router) device).getDataRate())));
                 if (device instanceof Switch) {
-                    devString.append(((Switch) device).getNumberOfPorts());
+                    devString.append(appendDeviceFields(String.valueOf((((Switch) device)).getNumberOfPorts())));
                 }
                 if (device instanceof WifiRouter) {
                     devString.append(appendDeviceFields(((WifiRouter) device).getSecurityProtocol()));
                 }
-                devString.append(((Router) device).getDataRate());
-            }
-
-
-
-
-         /*   if (device instanceof Battery) {
-                bufferedWriter.write(STR_MARKER_2 + ((Battery) device).getChargeVolume() + STR_MARKER_2 + STR_MARKER);
-                test = String.valueOf(STR_MARKER_2 + ((Battery) device).getChargeVolume() + STR_MARKER_2 + STR_MARKER);
-            }
-            if (device instanceof Router) {
-                if (device instanceof Switch) {
-                    bufferedWriter.write(STR_MARKER_2 + ((Switch) device).getNumberOfPorts() + STR_MARKER_2 + STR_MARKER);
-                    test = String.valueOf(STR_MARKER_2 + ((Switch) device).getNumberOfPorts() + STR_MARKER_2 + STR_MARKER);
-                } else if (device instanceof WifiRouter) {
-                    bufferedWriter.write(validWriteDevice(((WifiRouter) device).getSecurityProtocol()));
-                    test = (validWriteDevice(((WifiRouter) device).getSecurityProtocol()));
-                } else {
-                    bufferedWriter.write(STR_MARKER_2 + ((Router) device).getDataRate() + STR_MARKER_2 + STR_MARKER);
-                    test = String.valueOf(STR_MARKER_2 + ((Router) device).getDataRate() + STR_MARKER_2 + STR_MARKER);
-                }
             }*/
 
-            //System.out.println(str);
-            // deviceString.append(LINE_MARKER);
-            // bufferedWriter.write(deviceString.toString());
-
+            if (Battery.class.isAssignableFrom(device.getClass())) {
+                devString.append(appendDeviceFields(String.valueOf((((Battery) device)).getChargeVolume())));
+            }
+            if (Router.class.isAssignableFrom((device.getClass()))) {
+                devString.append(appendDeviceFields(String.valueOf(((Router) device).getDataRate())));
+            }
+            if (Switch.class.isAssignableFrom(device.getClass())) {
+                devString.append(appendDeviceFields(String.valueOf((((Switch) device)).getNumberOfPorts())));
+            }
+            if (WifiRouter.class.isAssignableFrom(device.getClass())) {
+                WifiRouter wifiDevice = (WifiRouter) device;
+                devString.append(appendDeviceFields(((wifiDevice.getSecurityProtocol()))));
+            }
             System.out.println(devString.toString());
             devString.append(LINE_MARKER);
             bufferedWriter.write(devString.toString());
