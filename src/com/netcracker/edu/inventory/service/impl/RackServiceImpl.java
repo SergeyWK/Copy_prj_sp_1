@@ -15,6 +15,8 @@ class RackServiceImpl implements RackService {
     static protected Logger LOGGER = Logger.getLogger(RackServiceImpl.class.getName());
 
     private static final String LINE_MARKER = "\n";
+    static final String STR_MARKER = "|";
+    static final String STR_MARKER_2 = " ";
 
     public void outputRack(Rack rack, OutputStream outputStream) throws IOException {
         if (rack != null) {
@@ -81,6 +83,20 @@ class RackServiceImpl implements RackService {
                 throw illegalArgumentException;
             }
 
+            BufferedWriter bufferedWriter = new BufferedWriter(writer);
+            StringBuffer rackString = new StringBuffer(rack.getSize() + STR_MARKER_2);
+            rackString.append(rack.getTypeOfDevices().getName()).append(LINE_MARKER);
+            bufferedWriter.write(rackString.toString());
+            bufferedWriter.flush();
+            for (int i = 0; i < rack.getSize(); i++) {
+                if (rack.getDevAtSlot(i) != null) {
+                    new DeviceServiceImpl().writeDevice(rack.getDevAtSlot(i), writer);
+                } else {
+                    bufferedWriter.write(LINE_MARKER);
+                    bufferedWriter.flush();
+                }
+            }
+            System.out.println(rackString);
         }
     }
 
@@ -90,7 +106,33 @@ class RackServiceImpl implements RackService {
             LOGGER.log(Level.SEVERE, illegalArgumentException.getMessage() + reader, illegalArgumentException);
             throw illegalArgumentException;
         }
-    return null;
+        String rackOfDevice = new DeviceServiceImpl().readStringFromBuffer(reader);
+        String[] arrayRack = rackOfDevice.split(" ");
+        int rackSize = Integer.parseInt(arrayRack[0]);
+        String rackClass = arrayRack[1];
+        Rack rack;
+        try {
+            Class clazzRack = Class.forName(rackClass);
+            rack = new RackArrayImpl(rackSize, clazzRack);
+            String deviceClassName;
+            String deviceFields;
+            Device device;
+            for (int i = 0; i < rackSize; i++) {
+                deviceClassName = new DeviceServiceImpl().readStringFromBuffer(reader);
+                if (!deviceClassName.equals("")) {
+                    deviceFields = new DeviceServiceImpl().readStringFromBuffer(reader);
+                    Class clazzDevice = Class.forName(deviceClassName);
+                    device = new DeviceServiceImpl().deviceInitialization(clazzDevice);
+                    if (device != null) {
+                        new DeviceServiceImpl().readStringFieldsOfDevice(device, deviceFields);
+                        rack.insertDevToSlot(device, i);
+                    }
+                }
+            }
+        } catch (ClassNotFoundException e) {
+            LOGGER.log(Level.SEVERE, "Class not found", e);
+            throw e;
+        }
+        return rack;
     }
-
 }

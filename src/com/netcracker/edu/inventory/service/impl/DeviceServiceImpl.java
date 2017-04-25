@@ -288,7 +288,7 @@ class DeviceServiceImpl implements DeviceService {
                 WifiRouter wifiDevice = (WifiRouter) device;
                 devString.append(appendDeviceFields(((wifiDevice.getSecurityProtocol()))));
             }
-            System.out.println(devString.toString());
+           // System.out.println(devString.toString());
             devString.append(LINE_MARKER);
             bufferedWriter.write(devString.toString());
             bufferedWriter.flush();
@@ -317,7 +317,7 @@ class DeviceServiceImpl implements DeviceService {
             Class clazzDevice = Class.forName(deviceClassName);
             device = deviceInitialization(clazzDevice);
             if (device != null) {
-                readFieldsOfDevice(device, deviceFields);
+                readStringFieldsOfDevice(device, deviceFields);
             }
         } catch (ClassNotFoundException e) {
             LOGGER.log(Level.SEVERE, deviceClassName, e);
@@ -326,7 +326,7 @@ class DeviceServiceImpl implements DeviceService {
         return device;
     }
 
-    public void readFieldsOfDevice(Device device, String deviceFields) throws IOException {
+    public void readStringFieldsOfDevice(Device device, String deviceFields) throws IOException {
         StringTokenizer deviceField = new StringTokenizer(deviceFields, " |");
         device.setIn(Integer.parseInt(deviceField.nextToken()));
         deviceField.nextToken(STR_MARKER);
@@ -362,34 +362,15 @@ class DeviceServiceImpl implements DeviceService {
         }
         if (WifiRouter.class.isAssignableFrom(device.getClass())) {
             String devSecProtocol = deviceField.nextToken(STR_MARKER);
-            //   WifiRouter wifiDevice = (WifiRouter) device;
             if (!devSecProtocol.equals(" ")) {
-                // String value = devSecProtocol.trim();
-                ((WifiRouter) device).setSecurityProtocol(devSecProtocol.replaceAll("[\\s]{3}"," "));
-                System.out.println(devSecProtocol);
-                System.out.println(devSecProtocol.toCharArray());
-                System.out.println("WTF");
+                ((WifiRouter) device).setSecurityProtocol(devSecProtocol.replaceAll("[\\s]{3}", " "));
             } else {
                 ((WifiRouter) device).setSecurityProtocol(null);
             }
         }
-
-
-//        if (device instanceof Battery) {
-//            ((Battery) device).setChargeVolume(dataInput.readInt());
-//        }
-//        if (device instanceof Router) {
-//            if (device instanceof Switch) {
-//                ((Switch) device).setNumberOfPorts(dataInput.readInt());
-//            }
-//            if (device instanceof WifiRouter) {
-//                ((WifiRouter) device).setSecurityProtocol(readValue(dataInput.readUTF()));
-//            }
-//            ((Router) device).setDataRate(dataInput.readInt());
-//        }
     }
 
-    private String readStringFromBuffer(Reader reader) throws IOException {
+    public String readStringFromBuffer(Reader reader) throws IOException {
         char c;
         StringBuilder stringBuilder = new StringBuilder();
         while (true) {
