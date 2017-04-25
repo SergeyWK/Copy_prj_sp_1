@@ -5,10 +5,10 @@ import com.netcracker.edu.inventory.exception.DeviceValidationException;
 import com.netcracker.edu.inventory.model.Device;
 import com.netcracker.edu.inventory.model.impl.*;
 import com.netcracker.edu.inventory.service.DeviceService;
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import java.io.*;
 import java.util.Date;
+import java.util.StringTokenizer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -19,7 +19,6 @@ class DeviceServiceImpl implements DeviceService {
     static final String LINE_MARKER = "\n";
     static final String STR_MARKER = "|";
     static final String STR_MARKER_2 = " ";
-    private static final String ERROR_MESSAGE = "An unfinished execution path.";
 
     public void sortByIN(Device[] devices) {
         for (int i = 0; i < devices.length; i++) {
@@ -269,13 +268,26 @@ class DeviceServiceImpl implements DeviceService {
                 throw illegalArgumentException;
             }
             BufferedWriter bufferedWriter = new BufferedWriter(writer);
-            bufferedWriter.write(device.getClass().getName());
-            bufferedWriter.write(device.getIn());
-            bufferedWriter.write(validWriteDevice(device.getType()));
-            bufferedWriter.write(validWriteDevice(device.getModel()));
-            bufferedWriter.write(validWriteDevice(device.getManufacturer()));
-            bufferedWriter.write(String.valueOf(device.getProductionDate() == null ? -1 : device.getProductionDate().getTime()));
-            String test = "";
+            //StringBuffer deviceString = new StringBuffer(device.getClass().getName() + LINE_MARKER);
+
+
+            //bufferedWriter.write(device.getClass().getName() + LINE_MARKER);
+//           bufferedWriter.write(device.getIn() + STR_MARKER_2 + STR_MARKER);
+//            bufferedWriter.write(validWriteDevice(device.getType()));
+//            bufferedWriter.write(validWriteDevice(device.getModel()));
+//            bufferedWriter.write(validWriteDevice(device.getManufacturer()));
+//            bufferedWriter.write(String.valueOf(device.getProductionDate() == null ? STR_MARKER_2 + -1 : STR_MARKER_2 +
+//                    device.getProductionDate().getTime()) + STR_MARKER_2 + STR_MARKER);
+
+            String str = device.getClass().getName() + LINE_MARKER
+                    + device.getIn() + STR_MARKER_2 + STR_MARKER
+                    + (validWriteDevice(device.getType()))
+                    + (validWriteDevice(device.getModel()))
+                    + (validWriteDevice(device.getManufacturer()))
+                    + String.valueOf(device.getProductionDate() == null ? STR_MARKER_2 + -1 : STR_MARKER_2
+                    + device.getProductionDate().getTime()) + STR_MARKER_2 + STR_MARKER;
+
+        /*    String test = null;
             if (device instanceof Battery) {
                 bufferedWriter.write(STR_MARKER_2 + ((Battery) device).getChargeVolume() + STR_MARKER_2 + STR_MARKER);
                 test = String.valueOf(STR_MARKER_2 + ((Battery) device).getChargeVolume() + STR_MARKER_2 + STR_MARKER);
@@ -291,28 +303,22 @@ class DeviceServiceImpl implements DeviceService {
                     bufferedWriter.write(STR_MARKER_2 + ((Router) device).getDataRate() + STR_MARKER_2 + STR_MARKER);
                     test = String.valueOf(STR_MARKER_2 + ((Router) device).getDataRate() + STR_MARKER_2 + STR_MARKER);
                 }
+            }*/
 
-
-            }
-            String str = device.getClass().getName() + LINE_MARKER
-                    + device.getIn() + STR_MARKER_2 + STR_MARKER
-                    + ((device.getType()) == null ? STR_MARKER_2 + STR_MARKER : STR_MARKER_2 + device.getType() + STR_MARKER_2 + STR_MARKER)
-                    + ((device.getModel()) == null ? STR_MARKER_2 + STR_MARKER : STR_MARKER_2 + device.getModel() + STR_MARKER_2 + STR_MARKER)
-                    + ((device.getManufacturer()) == null ? STR_MARKER_2 + STR_MARKER : STR_MARKER_2 + device.getManufacturer() + STR_MARKER_2 + STR_MARKER)
-                    + String.valueOf(device.getProductionDate() == null ? STR_MARKER_2 + -1 : STR_MARKER_2 + device.getProductionDate().getTime()) + STR_MARKER_2 + STR_MARKER
-                    + test;
             System.out.println(str);
+            StringBuffer forTest = new StringBuffer(str + LINE_MARKER);
+            bufferedWriter.write(forTest.toString());
+            // deviceString.append(LINE_MARKER);
+            // bufferedWriter.write(deviceString.toString());
             bufferedWriter.flush();
         }
-
     }
 
     public String validWriteDevice(String type) {
-
         if (type == null) {
-            return STR_MARKER_2;
+            return STR_MARKER_2 + STR_MARKER;
         } else {
-            return type+STR_MARKER;
+            return STR_MARKER_2 + type + STR_MARKER_2 + STR_MARKER;
         }
     }
 
@@ -323,14 +329,14 @@ class DeviceServiceImpl implements DeviceService {
             LOGGER.log(Level.SEVERE, illegalArgumentException.getMessage() + reader, illegalArgumentException);
             throw illegalArgumentException;
         }
-        BufferedReader bufferedReader = new BufferedReader(reader);
-        String deviceClassName = bufferedReader.readLine();
+        String deviceClassName = readStringFromBuffer(reader);
+        String deviceFields = readStringFromBuffer(reader);
         Device device;
         try {
             Class clazzDevice = Class.forName(deviceClassName);
             device = deviceInitialization(clazzDevice);
             if (device != null) {
-                readerFieldsOfDevice(device, reader);
+                readFieldsOfDevice(device, deviceFields);
             }
         } catch (ClassNotFoundException e) {
             LOGGER.log(Level.SEVERE, deviceClassName, e);
@@ -339,29 +345,65 @@ class DeviceServiceImpl implements DeviceService {
         return device;
     }
 
-    public void readerFieldsOfDevice(Device device, Reader reader) throws IOException {
-        int deviceIn = reader.read();
-        String deviceType = String.valueOf(reader.read());
-        String deviceModel = String.valueOf(reader.read());
-        String deviceManufacturer = reader.toString();
-        long deviceProductionDate = reader.read();
-        Date date = deviceProductionDate == -1 ? null : new Date(deviceProductionDate);
-        device.setIn(deviceIn);
-        device.setType(deviceType);
-        device.setModel(deviceModel);
-        device.setManufacturer(deviceManufacturer);
-        device.setProductionDate(date);
-        if (device instanceof Battery) {
-            ((Battery) device).setChargeVolume(reader.read());
+    private String readStringFromBuffer(Reader reader) throws IOException {
+        char c;
+        StringBuilder stringBuilder = new StringBuilder();
+        while (true) {
+            c = ((char) reader.read());
+            if (c == LINE_MARKER.charAt(0) || c == 0xFFFF) break;
+            stringBuilder.append(c);
         }
-        if (device instanceof Router) {
-            if (device instanceof Switch) {
-                ((Switch) device).setNumberOfPorts(reader.read());
-            }
-            if (device instanceof WifiRouter) {
-                ((WifiRouter) device).setSecurityProtocol(reader.toString());
-            }
-            ((Router) device).setDataRate(reader.read());
-        }
+        return stringBuilder.toString();
     }
+
+    public void readFieldsOfDevice(Device device, String deviceFields) throws IOException {
+        StringTokenizer readFieldsString = new StringTokenizer(deviceFields, STR_MARKER);
+        String [] feildDevice = new  String[5];
+        int i=0;
+        while (readFieldsString.hasMoreTokens()){
+            feildDevice[i] = readFieldsString.nextToken();
+            i++;
+        }
+      int deviceIn = Integer.parseInt(feildDevice[0]);
+       String deviceType = feildDevice[1];
+       String deviceModel = feildDevice[2];
+
+       System.out.println(deviceModel);
+
+
+
+
+//         int deviceIn = dataInput.readInt();
+//        String deviceType = readValue(dataInput.readUTF());
+//        String deviceModel = readValue(dataInput.readUTF());
+//        String deviceManufacturer = readValue(dataInput.readUTF());
+//        long deviceProductionDate = dataInput.readLong();
+//        Date date = deviceProductionDate == -1 ? null : new Date(deviceProductionDate);
+//        device.setIn(deviceIn);
+//        device.setType(deviceType);
+//        device.setModel(deviceModel);
+//        device.setManufacturer(deviceManufacturer);
+//        device.setProductionDate(date);
+//        if (device instanceof Battery) {
+//            ((Battery) device).setChargeVolume(dataInput.readInt());
+//        }
+//        if (device instanceof Router) {
+//            if (device instanceof Switch) {
+//                ((Switch) device).setNumberOfPorts(dataInput.readInt());
+//            }
+//            if (device instanceof WifiRouter) {
+//                ((WifiRouter) device).setSecurityProtocol(readValue(dataInput.readUTF()));
+//            }
+//            ((Router) device).setDataRate(dataInput.readInt());
+//        }
+    }
+
 }
+
+
+
+
+
+
+
+

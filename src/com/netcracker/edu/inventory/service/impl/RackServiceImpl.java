@@ -15,7 +15,6 @@ class RackServiceImpl implements RackService {
     static protected Logger LOGGER = Logger.getLogger(RackServiceImpl.class.getName());
 
     private static final String LINE_MARKER = "\n";
-    private static final String ERROR_MESSAGE = "An unfinished execution path.";
 
     public void outputRack(Rack rack, OutputStream outputStream) throws IOException {
         if (rack != null) {
@@ -75,14 +74,22 @@ class RackServiceImpl implements RackService {
     }
 
     public void writeRack(Rack rack, Writer writer) throws IOException {
-        NotImplementedException notImplementedException = new NotImplementedException();
-        LOGGER.log(Level.SEVERE, ERROR_MESSAGE, notImplementedException);
-        throw notImplementedException;
+        if (rack != null) {
+            if (writer == null) {
+                IllegalArgumentException illegalArgumentException = new IllegalArgumentException("Writer stream can't be: ");
+                LOGGER.log(Level.SEVERE, illegalArgumentException.getMessage() + writer, illegalArgumentException);
+                throw illegalArgumentException;
+            }
+        }
     }
 
     public Rack readRack(Reader reader) throws IOException, ClassNotFoundException {
-        NotImplementedException notImplementedException = new NotImplementedException();
-        LOGGER.log(Level.SEVERE, ERROR_MESSAGE, notImplementedException);
-        throw notImplementedException;
+        if (reader == null) {
+            IllegalArgumentException illegalArgumentException = new IllegalArgumentException("Input stream can't be: ");
+            LOGGER.log(Level.SEVERE, illegalArgumentException.getMessage() + reader, illegalArgumentException);
+            throw illegalArgumentException;
+        }
+    return null;
     }
+
 }

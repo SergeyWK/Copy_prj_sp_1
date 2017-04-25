@@ -17,9 +17,6 @@ public abstract class AbstractDevice implements Device, Serializable {
     protected String model;
     protected Date productionDate;
 
-    public AbstractDevice() {
-    }
-
     public int getIn() {
         return in;
     }
