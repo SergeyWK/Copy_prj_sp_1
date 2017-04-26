@@ -4,7 +4,6 @@ import com.netcracker.edu.inventory.model.Device;
 import com.netcracker.edu.inventory.model.Rack;
 import com.netcracker.edu.inventory.model.impl.*;
 import com.netcracker.edu.inventory.service.RackService;
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import java.io.*;
 import java.util.logging.Level;
@@ -15,8 +14,6 @@ class RackServiceImpl implements RackService {
     static protected Logger LOGGER = Logger.getLogger(RackServiceImpl.class.getName());
 
     private static final String LINE_MARKER = "\n";
-    static final String STR_MARKER = "|";
-    static final String STR_MARKER_2 = " ";
 
     public void outputRack(Rack rack, OutputStream outputStream) throws IOException {
         if (rack != null) {
@@ -82,9 +79,8 @@ class RackServiceImpl implements RackService {
                 LOGGER.log(Level.SEVERE, illegalArgumentException.getMessage() + writer, illegalArgumentException);
                 throw illegalArgumentException;
             }
-
             BufferedWriter bufferedWriter = new BufferedWriter(writer);
-            StringBuffer rackString = new StringBuffer(rack.getSize() + STR_MARKER_2);
+            StringBuffer rackString = new StringBuffer(rack.getSize() + " ");
             rackString.append(rack.getTypeOfDevices().getName()).append(LINE_MARKER);
             bufferedWriter.write(rackString.toString());
             bufferedWriter.flush();
@@ -96,13 +92,12 @@ class RackServiceImpl implements RackService {
                     bufferedWriter.flush();
                 }
             }
-            System.out.println(rackString);
         }
     }
 
     public Rack readRack(Reader reader) throws IOException, ClassNotFoundException {
         if (reader == null) {
-            IllegalArgumentException illegalArgumentException = new IllegalArgumentException("Input stream can't be: ");
+            IllegalArgumentException illegalArgumentException = new IllegalArgumentException("Reader stream can't be: ");
             LOGGER.log(Level.SEVERE, illegalArgumentException.getMessage() + reader, illegalArgumentException);
             throw illegalArgumentException;
         }

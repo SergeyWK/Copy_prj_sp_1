@@ -125,8 +125,10 @@ class DeviceServiceImpl implements DeviceService {
                     routerSecurityProtocol = ((WifiRouter) device).getSecurityProtocol();
                 }
             }
-            boolean validObject = (isValidField(deviceModel, marker, marker2)) && (isValidField(deviceManufacturer, marker, marker2))
-                    && (isValidField(deviceType, marker, marker2) && (isValidField(routerSecurityProtocol, marker, marker2)));
+            boolean validObject = (isValidField(deviceModel, marker, marker2))
+                    && (isValidField(deviceManufacturer, marker, marker2))
+                    && (isValidField(deviceType, marker, marker2)
+                    && (isValidField(routerSecurityProtocol, marker, marker2)));
             return validObject;
         }
         return false;
@@ -200,7 +202,7 @@ class DeviceServiceImpl implements DeviceService {
                 readFieldsOfDevice(device, dataInput);
             }
         } catch (ClassNotFoundException e) {
-            LOGGER.log(Level.SEVERE, deviceClassName, e);
+            LOGGER.log(Level.SEVERE, "Class not found", e);
             throw e;
         }
         return device;
@@ -254,6 +256,7 @@ class DeviceServiceImpl implements DeviceService {
         return value;
     }
 
+
     public void writeDevice(Device device, Writer writer) throws IOException {
         if (device != null) {
             if (!isValidDeviceForWriteToStream(device)) {
@@ -288,7 +291,6 @@ class DeviceServiceImpl implements DeviceService {
                 WifiRouter wifiDevice = (WifiRouter) device;
                 devString.append(appendDeviceFields(((wifiDevice.getSecurityProtocol()))));
             }
-           // System.out.println(devString.toString());
             devString.append(LINE_MARKER);
             bufferedWriter.write(devString.toString());
             bufferedWriter.flush();
@@ -302,7 +304,6 @@ class DeviceServiceImpl implements DeviceService {
             return STR_MARKER_2 + type + STR_MARKER_2 + STR_MARKER;
         }
     }
-
 
     public Device readDevice(Reader reader) throws IOException, ClassNotFoundException {
         if (reader == null) {
@@ -320,7 +321,7 @@ class DeviceServiceImpl implements DeviceService {
                 readStringFieldsOfDevice(device, deviceFields);
             }
         } catch (ClassNotFoundException e) {
-            LOGGER.log(Level.SEVERE, deviceClassName, e);
+            LOGGER.log(Level.SEVERE, "Class not found", e);
             throw e;
         }
         return device;
@@ -331,13 +332,13 @@ class DeviceServiceImpl implements DeviceService {
         device.setIn(Integer.parseInt(deviceField.nextToken()));
         deviceField.nextToken(STR_MARKER);
         String devType = deviceField.nextToken(STR_MARKER);
-        device.setType(devType.equals(" ") ? null : devType.substring(1, devType.length() - 1));
+        device.setType(devType.equals(STR_MARKER_2) ? null : devType.substring(1, devType.length() - 1));
         String devModel = deviceField.nextToken(STR_MARKER);
-        device.setModel(devModel.equals(" ") ? null : devModel.substring(1, devModel.length() - 1));
+        device.setModel(devModel.equals(STR_MARKER_2) ? null : devModel.substring(1, devModel.length() - 1));
         String devManufacturer = deviceField.nextToken(STR_MARKER);
-        device.setManufacturer(devManufacturer.equals(" ") ? null : devManufacturer.substring(1, devManufacturer.length() - 1));
+        device.setManufacturer(devManufacturer.equals(STR_MARKER_2) ? null : devManufacturer.substring(1, devManufacturer.length() - 1));
         String devDate = deviceField.nextToken(STR_MARKER);
-        if (!devDate.equals(" ")) {
+        if (!devDate.equals(STR_MARKER_2)) {
             Long date = Long.parseLong(devDate.trim());
             if (date != -1) {
                 device.setProductionDate(new Date(date));
@@ -362,7 +363,7 @@ class DeviceServiceImpl implements DeviceService {
         }
         if (WifiRouter.class.isAssignableFrom(device.getClass())) {
             String devSecProtocol = deviceField.nextToken(STR_MARKER);
-            if (!devSecProtocol.equals(" ")) {
+            if (!devSecProtocol.equals(STR_MARKER_2)) {
                 ((WifiRouter) device).setSecurityProtocol(devSecProtocol.replaceAll("[\\s]{3}", " "));
             } else {
                 ((WifiRouter) device).setSecurityProtocol(null);
@@ -371,12 +372,12 @@ class DeviceServiceImpl implements DeviceService {
     }
 
     public String readStringFromBuffer(Reader reader) throws IOException {
-        char c;
+        char signRead;
         StringBuilder stringBuilder = new StringBuilder();
         while (true) {
-            c = ((char) reader.read());
-            if (c == LINE_MARKER.charAt(0) || c == 0xFFFF) break;
-            stringBuilder.append(c);
+            signRead = ((char) reader.read());
+            if (signRead == LINE_MARKER.charAt(0) || signRead == 0xFFFF) break;
+            stringBuilder.append(signRead);
         }
         return stringBuilder.toString();
     }
