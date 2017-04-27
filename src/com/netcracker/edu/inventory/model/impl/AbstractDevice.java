@@ -1,6 +1,7 @@
 package com.netcracker.edu.inventory.model.impl;
 
 import com.netcracker.edu.inventory.model.Device;
+import com.netcracker.edu.inventory.model.FillableEntity;
 
 import java.io.Serializable;
 import java.util.Date;
@@ -76,4 +77,13 @@ public abstract class AbstractDevice implements Device, Serializable {
         this.productionDate = productionDate;
     }
 
+    @Override
+    public void fillAllFields(Field[] fields) {
+
+    }
+
+    @Override
+    public Field[] getAllFieldsToArray() {
+        return new Field[0];
+    }
 }

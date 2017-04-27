@@ -1,6 +1,7 @@
 package com.netcracker.edu.inventory.model.impl;
 
 import com.netcracker.edu.inventory.model.Device;
+import com.netcracker.edu.inventory.model.FillableEntity;
 
 import java.util.Date;
 
@@ -15,4 +16,5 @@ public class Router extends AbstractDevice  implements Device {
     public void setDataRate(int dataRate) {
         this.dataRate = dataRate;
     }
+
 }

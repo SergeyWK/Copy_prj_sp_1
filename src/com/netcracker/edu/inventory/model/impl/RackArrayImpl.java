@@ -4,6 +4,7 @@ import com.netcracker.edu.inventory.exception.DeviceValidationException;
 import com.netcracker.edu.inventory.model.Device;
 import com.netcracker.edu.inventory.model.Rack;
 import com.netcracker.edu.inventory.service.impl.ServiceImpl;
+import com.netcracker.edu.location.Location;
 
 import java.io.Serializable;
 import java.util.logging.Level;
@@ -15,6 +16,7 @@ public class RackArrayImpl implements Rack, Serializable {
 
     protected Device[] arrayImpl;
     private final Class clazz;
+    protected Location location;
 
     public RackArrayImpl(int size, Class clazz) {
         if (clazz == null) {
@@ -147,4 +149,13 @@ public class RackArrayImpl implements Rack, Serializable {
         return devices;
     }
 
+    @Override
+    public Location getLocation() {
+        return location;
+    }
+
+    @Override
+    public void setLocation(Location location) {
+        this.location = location;
+    }
 }

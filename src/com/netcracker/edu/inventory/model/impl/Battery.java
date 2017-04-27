@@ -6,15 +6,14 @@ import java.util.logging.Logger;
 
 public class Battery extends AbstractDevice implements Device {
 
-   static protected Logger LOGGER = Logger.getLogger(Battery.class.getName());
+    protected int chargeVolume;
 
-   protected int chargeVolume;
+    public int getChargeVolume() {
+        return chargeVolume;
+    }
 
-   public int getChargeVolume() {
-      return chargeVolume;
-   }
+    public void setChargeVolume(int chargeVolume) {
+        this.chargeVolume = chargeVolume;
+    }
 
-   public void setChargeVolume(int chargeVolume) {
-      this.chargeVolume = chargeVolume;
-   }
 }

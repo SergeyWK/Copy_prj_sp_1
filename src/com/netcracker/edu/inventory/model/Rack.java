@@ -1,12 +1,28 @@
 package com.netcracker.edu.inventory.model;
 
+import com.netcracker.edu.location.Location;
+
 /**
  * The interface Rack describe contract of mutable device-holder,
  * with limited volume of slots. Slots ara ordered and can fills and released randomly. *
  *
  * Created by makovetskyi on 05.10.2016.
  */
-public interface Rack {
+public interface Rack<D extends Device> {
+
+    /**
+     *
+     * @return current location of rack
+     */
+    Location getLocation();
+
+    /**
+     * Set new current location of rack
+     *
+     * @param location - new location
+     */
+    void setLocation(Location location);
+
     /**
      *
      * @return full capacity of rack
@@ -32,7 +48,7 @@ public interface Rack {
      * @return device object at slot - if slot are full
      *         null - if slot are empty
      */
-    Device getDevAtSlot(int index);
+    D getDevAtSlot(int index);
 
     /**
      * Insert device object to specified slot of rack
@@ -44,7 +60,7 @@ public interface Rack {
      * @return true - if device was inserted
      *         false - if not
      */
-    boolean insertDevToSlot(Device device, int index);
+    boolean insertDevToSlot(D device, int index);
 
     /**
      * Remove device object from specified slot of rack
@@ -53,7 +69,7 @@ public interface Rack {
      * @return device object that has been removed - if slot was full
      *         null - if slot was empty
      */
-    Device removeDevFromSlot(int index);
+    D removeDevFromSlot(int index);
 
     /**
      * Get device object with specified identification number
@@ -62,7 +78,7 @@ public interface Rack {
      * @return device object with specified identification number - if it is present in rack
      *         null - if it is absent in rack
      */
-    Device getDevByIN(int in);
+    D getDevByIN(int in);
 
     /**
      * Get array of devices witch are stored at current object of Rack
@@ -70,5 +86,5 @@ public interface Rack {
      *
      * @return array of devices
      */
-    Device[] getAllDeviceAsArray();
+    D[] getAllDeviceAsArray();
 }

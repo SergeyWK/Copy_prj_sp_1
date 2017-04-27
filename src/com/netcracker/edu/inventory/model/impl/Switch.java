@@ -13,4 +13,5 @@ public class Switch extends Router implements Device {
     public void setNumberOfPorts(int numberOfPorts) {
         this.numberOfPorts = numberOfPorts;
     }
+
 }
