@@ -17,129 +17,39 @@ class DeviceServiceImpl implements DeviceService {
     static protected Logger LOGGER = Logger.getLogger(DeviceServiceImpl.class.getName());
 
     static final String LINE_MARKER = "\n";
-    static final String STR_MARKER = "|";
-    static final String STR_MARKER_2 = " ";
+    static final String STRING_TOKEN = "|";
+    static final String SPACE_SEPARATOR = " ";
 
     public void sortByIN(Device[] devices) {
-        for (int i = 0; i < devices.length; i++) {
-            for (int j = 1 + i; j < devices.length; j++) {
-                if ((devices[i] != null && devices[j] != null
-                        && ((devices[j].getIn() != 0
-                        && devices[j].getIn() < devices[i].getIn())
-                        || (devices[i].getIn() == 0)))
-                        || (devices[i] == null)) {
-                    Device deviceMemory = devices[i];
-                    devices[i] = devices[j];
-                    devices[j] = deviceMemory;
-                }
-            }
-        }
+        new SortAndFiltrateService().sortByIN(devices);
     }
 
     public void sortByProductionDate(Device[] devices) {
-        for (int i = 0; i < devices.length; i++) {
-            for (int j = 1 + i; j < devices.length; j++) {
-                if ((devices[i] != null && devices[j] != null
-                        && ((devices[j].getProductionDate() != null
-                        && isAfter(devices[j].getProductionDate(), devices[i].getProductionDate()))
-                        || (devices[i].getProductionDate() == null)))
-                        || (devices[i] == null)) {
-                    Device deviceMemory = devices[i];
-                    devices[i] = devices[j];
-                    devices[j] = deviceMemory;
-                }
-            }
-        }
-    }
-
-    private boolean isAfter(Date date1, Date date2) {
-        if (date2 == null) {
-            return false;
-        }
-        return date1.compareTo(date2) < 0;
+        new SortAndFiltrateService().sortByProductionDate(devices);
     }
 
     public void filtrateByType(Device[] devices, String type) {
-        for (int i = 0; i < devices.length; i++) {
-            if (devices[i] != null) {
-                if ((type == null && null != devices[i].getType())
-                        || (type != null && !type.equals(devices[i].getType()))) {
-                    devices[i] = null;
-                }
-            }
-        }
+        new SortAndFiltrateService().filtrateByType(devices, type);
     }
 
     public void filtrateByManufacturer(Device[] devices, String manufacturer) {
-        for (int i = 0; i < devices.length; i++) {
-            if (devices[i] != null) {
-                if ((manufacturer == null && null != devices[i].getManufacturer())
-                        || (manufacturer != null && !manufacturer.equals(devices[i].getManufacturer()))) {
-                    devices[i] = null;
-                }
-            }
-        }
+        new SortAndFiltrateService().filtrateByManufacturer(devices, manufacturer);
     }
 
     public void filtrateByModel(Device[] devices, String model) {
-        for (int i = 0; i < devices.length; i++) {
-            if (devices[i] != null) {
-                if ((model == null && null != devices[i].getModel())
-                        || (model != null && !model.equals(devices[i].getModel()))) {
-                    devices[i] = null;
-                }
-            }
-        }
+        new SortAndFiltrateService().filtrateByModel(devices, model);
     }
 
     public boolean isValidDeviceForInsertToRack(Device device) {
-        if ((!(device != null && device.getIn() > 0))) {
-            return false;
-        }
-        return true;
+        return new ValidationService().isValidDeviceForInsertToRack(device);
     }
 
-
     public boolean isValidDeviceForOutputToStream(Device device) {
-        if (device != null) {
-            return isValidDevice(device, LINE_MARKER, LINE_MARKER);
-        }
-        return false;
+       return  new ValidationService().isValidDeviceForOutputToStream(device);
     }
 
     public boolean isValidDeviceForWriteToStream(Device device) {
-        if (device != null) {
-            return isValidDevice(device, LINE_MARKER, STR_MARKER);
-        }
-        return false;
-    }
-
-    private boolean isValidDevice(Device device, String marker, String marker2) {
-        if (device != null) {
-            String deviceModel = device.getModel();
-            String deviceManufacturer = device.getManufacturer();
-            String deviceType = device.getType();
-            String routerSecurityProtocol = null;
-            if (device instanceof Router) {
-                if (device instanceof WifiRouter) {
-                    routerSecurityProtocol = ((WifiRouter) device).getSecurityProtocol();
-                }
-            }
-            boolean validObject = (isValidField(deviceModel, marker, marker2))
-                    && (isValidField(deviceManufacturer, marker, marker2))
-                    && (isValidField(deviceType, marker, marker2)
-                    && (isValidField(routerSecurityProtocol, marker, marker2)));
-            return validObject;
-        }
-        return false;
-    }
-
-
-    private boolean isValidField(String field, String marker1, String marker2) {
-        if (field == null) {
-            return true;
-        }
-        return !(field.contains(marker1) || field.contains(marker2));
+       return new ValidationService().isValidDeviceForWriteToStream(device);
     }
 
     public void outputDevice(Device device, OutputStream outputStream) throws IOException {
@@ -272,12 +182,12 @@ class DeviceServiceImpl implements DeviceService {
             }
             BufferedWriter bufferedWriter = new BufferedWriter(writer);
             StringBuffer devString = new StringBuffer(device.getClass().getName() + LINE_MARKER);
-            devString.append(device.getIn()).append(STR_MARKER_2 + STR_MARKER);
+            devString.append(device.getIn()).append(SPACE_SEPARATOR + STRING_TOKEN);
             devString.append(appendDeviceFields(device.getType()));
             devString.append(appendDeviceFields(device.getModel()));
             devString.append(appendDeviceFields(device.getManufacturer()));
-            devString.append(String.valueOf(device.getProductionDate() == null ? STR_MARKER_2 + (-1) : STR_MARKER_2 +
-                    device.getProductionDate().getTime()) + STR_MARKER_2 + STR_MARKER);
+            devString.append(String.valueOf(device.getProductionDate() == null ? SPACE_SEPARATOR + (-1) : SPACE_SEPARATOR +
+                    device.getProductionDate().getTime()) + SPACE_SEPARATOR + STRING_TOKEN);
             if (Battery.class.isAssignableFrom(device.getClass())) {
                 devString.append(appendDeviceFields(String.valueOf((((Battery) device)).getChargeVolume())));
             }
@@ -299,9 +209,9 @@ class DeviceServiceImpl implements DeviceService {
 
     public String appendDeviceFields(String type) {
         if (type == null) {
-            return STR_MARKER_2 + STR_MARKER;
+            return SPACE_SEPARATOR + STRING_TOKEN;
         } else {
-            return STR_MARKER_2 + type + STR_MARKER_2 + STR_MARKER;
+            return SPACE_SEPARATOR + type + SPACE_SEPARATOR + STRING_TOKEN;
         }
     }
 
@@ -330,15 +240,15 @@ class DeviceServiceImpl implements DeviceService {
     public void readStringFieldsOfDevice(Device device, String deviceFields) throws IOException {
         StringTokenizer deviceField = new StringTokenizer(deviceFields, " |");
         device.setIn(Integer.parseInt(deviceField.nextToken()));
-        deviceField.nextToken(STR_MARKER);
-        String devType = deviceField.nextToken(STR_MARKER);
-        device.setType(devType.equals(STR_MARKER_2) ? null : devType.substring(1, devType.length() - 1));
-        String devModel = deviceField.nextToken(STR_MARKER);
-        device.setModel(devModel.equals(STR_MARKER_2) ? null : devModel.substring(1, devModel.length() - 1));
-        String devManufacturer = deviceField.nextToken(STR_MARKER);
-        device.setManufacturer(devManufacturer.equals(STR_MARKER_2) ? null : devManufacturer.substring(1, devManufacturer.length() - 1));
-        String devDate = deviceField.nextToken(STR_MARKER);
-        if (!devDate.equals(STR_MARKER_2)) {
+        deviceField.nextToken(STRING_TOKEN);
+        String devType = deviceField.nextToken(STRING_TOKEN);
+        device.setType(devType.equals(SPACE_SEPARATOR) ? null : devType.substring(1, devType.length() - 1));
+        String devModel = deviceField.nextToken(STRING_TOKEN);
+        device.setModel(devModel.equals(SPACE_SEPARATOR) ? null : devModel.substring(1, devModel.length() - 1));
+        String devManufacturer = deviceField.nextToken(STRING_TOKEN);
+        device.setManufacturer(devManufacturer.equals(SPACE_SEPARATOR) ? null : devManufacturer.substring(1, devManufacturer.length() - 1));
+        String devDate = deviceField.nextToken(STRING_TOKEN);
+        if (!devDate.equals(SPACE_SEPARATOR)) {
             Long date = Long.parseLong(devDate.trim());
             if (date != -1) {
                 device.setProductionDate(new Date(date));
@@ -347,23 +257,23 @@ class DeviceServiceImpl implements DeviceService {
             }
         }
         if (Battery.class.isAssignableFrom(device.getClass())) {
-            String devChargeVolume = deviceField.nextToken(STR_MARKER);
+            String devChargeVolume = deviceField.nextToken(STRING_TOKEN);
             int value = Integer.parseInt(devChargeVolume.trim());
             ((Battery) device).setChargeVolume(value);
         }
         if (Router.class.isAssignableFrom(device.getClass())) {
-            String devDataRate = deviceField.nextToken(STR_MARKER);
+            String devDataRate = deviceField.nextToken(STRING_TOKEN);
             int value = Integer.parseInt(devDataRate.trim());
             ((Router) device).setDataRate(value);
         }
         if (Switch.class.isAssignableFrom(device.getClass())) {
-            String devNumOfPorts = deviceField.nextToken(STR_MARKER);
+            String devNumOfPorts = deviceField.nextToken(STRING_TOKEN);
             int value = Integer.parseInt(devNumOfPorts.trim());
             ((Switch) device).setNumberOfPorts(value);
         }
         if (WifiRouter.class.isAssignableFrom(device.getClass())) {
-            String devSecProtocol = deviceField.nextToken(STR_MARKER);
-            if (!devSecProtocol.equals(STR_MARKER_2)) {
+            String devSecProtocol = deviceField.nextToken(STRING_TOKEN);
+            if (!devSecProtocol.equals(SPACE_SEPARATOR)) {
                 ((WifiRouter) device).setSecurityProtocol(devSecProtocol.replaceAll("[\\s]{3}", " "));
             } else {
                 ((WifiRouter) device).setSecurityProtocol(null);

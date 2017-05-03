@@ -2,7 +2,8 @@ package com.netcracker.edu.inventory.model.impl;
 
 import com.netcracker.edu.inventory.model.Device;
 
-import java.util.logging.Logger;
+import java.util.HashMap;
+
 
 public class Battery extends AbstractDevice implements Device {
 

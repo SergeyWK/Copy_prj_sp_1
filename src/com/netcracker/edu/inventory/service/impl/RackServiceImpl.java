@@ -4,6 +4,9 @@ import com.netcracker.edu.inventory.model.Device;
 import com.netcracker.edu.inventory.model.Rack;
 import com.netcracker.edu.inventory.model.impl.*;
 import com.netcracker.edu.inventory.service.RackService;
+import com.netcracker.edu.location.Location;
+import com.netcracker.edu.location.impl.*;
+import com.netcracker.edu.location.impl.ServiceImpl;
 
 import java.io.*;
 import java.util.logging.Level;
@@ -23,6 +26,7 @@ class RackServiceImpl implements RackService {
                 throw illegalArgumentException;
             }
             DataOutputStream dataOutputStream = new DataOutputStream(outputStream);
+            new com.netcracker.edu.location.impl.ServiceImpl().outputLocation(rack.getLocation(), outputStream);
             dataOutputStream.writeInt(rack.getSize());
             dataOutputStream.writeUTF(rack.getTypeOfDevices().getName());
             for (int i = 0; i < rack.getSize(); i++) {
@@ -43,6 +47,7 @@ class RackServiceImpl implements RackService {
             LOGGER.log(Level.SEVERE, illegalArgumentException.getMessage() + inputStream, illegalArgumentException);
             throw illegalArgumentException;
         }
+        Location location =  new ServiceImpl().inputLocation(inputStream);
         DataInputStream dataInput = new DataInputStream(inputStream);
         int rackSize = dataInput.readInt();
         String rackClass = dataInput.readUTF();
