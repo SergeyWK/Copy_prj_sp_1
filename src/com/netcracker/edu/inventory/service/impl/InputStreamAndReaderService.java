@@ -4,7 +4,6 @@ import com.netcracker.edu.inventory.model.Device;
 import com.netcracker.edu.inventory.model.Rack;
 import com.netcracker.edu.inventory.model.impl.*;
 import com.netcracker.edu.location.Location;
-import com.netcracker.edu.location.impl.*;
 import com.netcracker.edu.location.impl.ServiceImpl;
 
 import java.io.DataInputStream;
