@@ -10,7 +10,7 @@ import java.io.Serializable;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class RackArrayImpl implements Rack, Serializable {
+public class RackArrayImpl<T> implements Rack, Serializable {
 
     static protected Logger LOGGER = Logger.getLogger(RackArrayImpl.class.getName());
 

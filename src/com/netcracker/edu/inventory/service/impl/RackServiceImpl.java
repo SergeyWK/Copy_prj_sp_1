@@ -5,7 +5,6 @@ import com.netcracker.edu.inventory.model.Rack;
 import com.netcracker.edu.inventory.model.impl.*;
 import com.netcracker.edu.inventory.service.RackService;
 import com.netcracker.edu.location.Location;
-import com.netcracker.edu.location.impl.*;
 import com.netcracker.edu.location.impl.ServiceImpl;
 
 import java.io.*;
@@ -47,7 +46,7 @@ class RackServiceImpl implements RackService {
             LOGGER.log(Level.SEVERE, illegalArgumentException.getMessage() + inputStream, illegalArgumentException);
             throw illegalArgumentException;
         }
-        Location location =  new ServiceImpl().inputLocation(inputStream);
+        Location location = new ServiceImpl().inputLocation(inputStream);
         DataInputStream dataInput = new DataInputStream(inputStream);
         int rackSize = dataInput.readInt();
         String rackClass = dataInput.readUTF();
@@ -55,6 +54,7 @@ class RackServiceImpl implements RackService {
         try {
             Class clazzRack = Class.forName(rackClass);
             rack = new RackArrayImpl(rackSize, clazzRack);
+            rack.setLocation(location);
             String deviceClassName;
             Device device;
             String deviceNull;
@@ -85,6 +85,7 @@ class RackServiceImpl implements RackService {
                 throw illegalArgumentException;
             }
             BufferedWriter bufferedWriter = new BufferedWriter(writer);
+            new com.netcracker.edu.location.impl.ServiceImpl().writeLocation(rack.getLocation(), writer);
             StringBuffer rackString = new StringBuffer(rack.getSize() + " ");
             rackString.append(rack.getTypeOfDevices().getName()).append(LINE_MARKER);
             bufferedWriter.write(rackString.toString());
@@ -106,6 +107,7 @@ class RackServiceImpl implements RackService {
             LOGGER.log(Level.SEVERE, illegalArgumentException.getMessage() + reader, illegalArgumentException);
             throw illegalArgumentException;
         }
+        Location location = new ServiceImpl().readLocation(reader);
         String rackOfDevice = new DeviceServiceImpl().readStringFromBuffer(reader);
         String[] arrayRack = rackOfDevice.split(" ");
         int rackSize = Integer.parseInt(arrayRack[0]);
@@ -114,6 +116,7 @@ class RackServiceImpl implements RackService {
         try {
             Class clazzRack = Class.forName(rackClass);
             rack = new RackArrayImpl(rackSize, clazzRack);
+            rack.setLocation(location);
             String deviceClassName;
             String deviceFields;
             Device device;
