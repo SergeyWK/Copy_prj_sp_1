@@ -41,40 +41,7 @@ class RackServiceImpl implements RackService {
     }
 
     public Rack inputRack(InputStream inputStream) throws IOException, ClassNotFoundException {
-        if (inputStream == null) {
-            IllegalArgumentException illegalArgumentException = new IllegalArgumentException("Input stream can't be: ");
-            LOGGER.log(Level.SEVERE, illegalArgumentException.getMessage() + inputStream, illegalArgumentException);
-            throw illegalArgumentException;
-        }
-        Location location = new ServiceImpl().inputLocation(inputStream);
-        DataInputStream dataInput = new DataInputStream(inputStream);
-        int rackSize = dataInput.readInt();
-        String rackClass = dataInput.readUTF();
-        Rack rack;
-        try {
-            Class clazzRack = Class.forName(rackClass);
-            rack = new RackArrayImpl(rackSize, clazzRack);
-            rack.setLocation(location);
-            String deviceClassName;
-            Device device;
-            String deviceNull;
-            for (int i = 0; i < rackSize; i++) {
-                deviceNull = dataInput.readUTF();
-                if (!deviceNull.equals(LINE_MARKER)) {
-                    deviceClassName = dataInput.readUTF();
-                    Class clazzDevice = Class.forName(deviceClassName);
-                    device = new DeviceServiceImpl().deviceInitialization(clazzDevice);
-                    if (device != null) {
-                        new DeviceServiceImpl().readFieldsOfDevice(device, dataInput);
-                        rack.insertDevToSlot(device, i);
-                    }
-                }
-            }
-        } catch (ClassNotFoundException e) {
-            LOGGER.log(Level.SEVERE, "Class not found", e);
-            throw e;
-        }
-        return rack;
+       return new InputStreamAndReaderService().inputRack(inputStream);
     }
 
     public void writeRack(Rack rack, Writer writer) throws IOException {
@@ -102,40 +69,6 @@ class RackServiceImpl implements RackService {
     }
 
     public Rack readRack(Reader reader) throws IOException, ClassNotFoundException {
-        if (reader == null) {
-            IllegalArgumentException illegalArgumentException = new IllegalArgumentException("Reader stream can't be: ");
-            LOGGER.log(Level.SEVERE, illegalArgumentException.getMessage() + reader, illegalArgumentException);
-            throw illegalArgumentException;
-        }
-        Location location = new ServiceImpl().readLocation(reader);
-        String rackOfDevice = new DeviceServiceImpl().readStringFromBuffer(reader);
-        String[] arrayRack = rackOfDevice.split(" ");
-        int rackSize = Integer.parseInt(arrayRack[0]);
-        String rackClass = arrayRack[1];
-        Rack rack;
-        try {
-            Class clazzRack = Class.forName(rackClass);
-            rack = new RackArrayImpl(rackSize, clazzRack);
-            rack.setLocation(location);
-            String deviceClassName;
-            String deviceFields;
-            Device device;
-            for (int i = 0; i < rackSize; i++) {
-                deviceClassName = new DeviceServiceImpl().readStringFromBuffer(reader);
-                if (!deviceClassName.equals("")) {
-                    deviceFields = new DeviceServiceImpl().readStringFromBuffer(reader);
-                    Class clazzDevice = Class.forName(deviceClassName);
-                    device = new DeviceServiceImpl().deviceInitialization(clazzDevice);
-                    if (device != null) {
-                        new DeviceServiceImpl().readStringFieldsOfDevice(device, deviceFields);
-                        rack.insertDevToSlot(device, i);
-                    }
-                }
-            }
-        } catch (ClassNotFoundException e) {
-            LOGGER.log(Level.SEVERE, "Class not found", e);
-            throw e;
-        }
-        return rack;
+       return new InputStreamAndReaderService().readRack(reader);
     }
 }

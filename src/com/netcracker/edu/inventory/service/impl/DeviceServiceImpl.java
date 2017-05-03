@@ -97,75 +97,8 @@ class DeviceServiceImpl implements DeviceService {
     }
 
     public Device inputDevice(InputStream inputStream) throws IOException, ClassNotFoundException {
-        if (inputStream == null) {
-            IllegalArgumentException illegalArgumentException = new IllegalArgumentException("Input stream can't be: ");
-            LOGGER.log(Level.SEVERE, illegalArgumentException.getMessage() + inputStream, illegalArgumentException);
-            throw illegalArgumentException;
-        }
-        DataInputStream dataInput = new DataInputStream(inputStream);
-        String deviceClassName = dataInput.readUTF();
-        Device device;
-        try {
-            Class clazz = Class.forName(deviceClassName);
-            device = deviceInitialization(clazz);
-            if (device != null) {
-                readFieldsOfDevice(device, dataInput);
-            }
-        } catch (ClassNotFoundException e) {
-            LOGGER.log(Level.SEVERE, "Class not found", e);
-            throw e;
-        }
-        return device;
+      return new InputStreamAndReaderService().inputDevice(inputStream);
     }
-
-    public Device deviceInitialization(Class deviceClass) {
-        if (Battery.class.equals(deviceClass)) {
-            return new Battery();
-        } else if (Router.class.equals(deviceClass)) {
-            return new Router();
-        } else if (Switch.class.equals(deviceClass)) {
-            return new Switch();
-        } else if (WifiRouter.class.equals(deviceClass)) {
-            return new WifiRouter();
-        }
-        ClassCastException classCastException = new ClassCastException("The resulting class is not a device: ");
-        LOGGER.log(Level.SEVERE, classCastException.getMessage() + deviceClass, classCastException);
-        throw classCastException;
-    }
-
-    public void readFieldsOfDevice(Device device, DataInputStream dataInput) throws IOException {
-        int deviceIn = dataInput.readInt();
-        String deviceType = readValue(dataInput.readUTF());
-        String deviceModel = readValue(dataInput.readUTF());
-        String deviceManufacturer = readValue(dataInput.readUTF());
-        long deviceProductionDate = dataInput.readLong();
-        Date date = deviceProductionDate == -1 ? null : new Date(deviceProductionDate);
-        device.setIn(deviceIn);
-        device.setType(deviceType);
-        device.setModel(deviceModel);
-        device.setManufacturer(deviceManufacturer);
-        device.setProductionDate(date);
-        if (device instanceof Battery) {
-            ((Battery) device).setChargeVolume(dataInput.readInt());
-        }
-        if (device instanceof Router) {
-            if (device instanceof Switch) {
-                ((Switch) device).setNumberOfPorts(dataInput.readInt());
-            }
-            if (device instanceof WifiRouter) {
-                ((WifiRouter) device).setSecurityProtocol(readValue(dataInput.readUTF()));
-            }
-            ((Router) device).setDataRate(dataInput.readInt());
-        }
-    }
-
-    public String readValue(String value) {
-        if (LINE_MARKER.equals(value)) {
-            return null;
-        }
-        return value;
-    }
-
 
     public void writeDevice(Device device, Writer writer) throws IOException {
         if (device != null) {
@@ -216,82 +149,8 @@ class DeviceServiceImpl implements DeviceService {
     }
 
     public Device readDevice(Reader reader) throws IOException, ClassNotFoundException {
-        if (reader == null) {
-            IllegalArgumentException illegalArgumentException = new IllegalArgumentException("Reader stream can't be: ");
-            LOGGER.log(Level.SEVERE, illegalArgumentException.getMessage() + reader, illegalArgumentException);
-            throw illegalArgumentException;
-        }
-        String deviceClassName = readStringFromBuffer(reader);
-        String deviceFields = readStringFromBuffer(reader);
-        Device device;
-        try {
-            Class clazzDevice = Class.forName(deviceClassName);
-            device = deviceInitialization(clazzDevice);
-            if (device != null) {
-                readStringFieldsOfDevice(device, deviceFields);
-            }
-        } catch (ClassNotFoundException e) {
-            LOGGER.log(Level.SEVERE, "Class not found", e);
-            throw e;
-        }
-        return device;
+        return new InputStreamAndReaderService().readDevice(reader);
     }
-
-    public void readStringFieldsOfDevice(Device device, String deviceFields) throws IOException {
-        StringTokenizer deviceField = new StringTokenizer(deviceFields, " |");
-        device.setIn(Integer.parseInt(deviceField.nextToken()));
-        deviceField.nextToken(STRING_TOKEN);
-        String devType = deviceField.nextToken(STRING_TOKEN);
-        device.setType(devType.equals(SPACE_SEPARATOR) ? null : devType.substring(1, devType.length() - 1));
-        String devModel = deviceField.nextToken(STRING_TOKEN);
-        device.setModel(devModel.equals(SPACE_SEPARATOR) ? null : devModel.substring(1, devModel.length() - 1));
-        String devManufacturer = deviceField.nextToken(STRING_TOKEN);
-        device.setManufacturer(devManufacturer.equals(SPACE_SEPARATOR) ? null : devManufacturer.substring(1, devManufacturer.length() - 1));
-        String devDate = deviceField.nextToken(STRING_TOKEN);
-        if (!devDate.equals(SPACE_SEPARATOR)) {
-            Long date = Long.parseLong(devDate.trim());
-            if (date != -1) {
-                device.setProductionDate(new Date(date));
-            } else {
-                device.setProductionDate(null);
-            }
-        }
-        if (Battery.class.isAssignableFrom(device.getClass())) {
-            String devChargeVolume = deviceField.nextToken(STRING_TOKEN);
-            int value = Integer.parseInt(devChargeVolume.trim());
-            ((Battery) device).setChargeVolume(value);
-        }
-        if (Router.class.isAssignableFrom(device.getClass())) {
-            String devDataRate = deviceField.nextToken(STRING_TOKEN);
-            int value = Integer.parseInt(devDataRate.trim());
-            ((Router) device).setDataRate(value);
-        }
-        if (Switch.class.isAssignableFrom(device.getClass())) {
-            String devNumOfPorts = deviceField.nextToken(STRING_TOKEN);
-            int value = Integer.parseInt(devNumOfPorts.trim());
-            ((Switch) device).setNumberOfPorts(value);
-        }
-        if (WifiRouter.class.isAssignableFrom(device.getClass())) {
-            String devSecProtocol = deviceField.nextToken(STRING_TOKEN);
-            if (!devSecProtocol.equals(SPACE_SEPARATOR)) {
-                ((WifiRouter) device).setSecurityProtocol(devSecProtocol.replaceAll("[\\s]{3}", " "));
-            } else {
-                ((WifiRouter) device).setSecurityProtocol(null);
-            }
-        }
-    }
-
-    public String readStringFromBuffer(Reader reader) throws IOException {
-        char signRead;
-        StringBuilder stringBuilder = new StringBuilder();
-        while (true) {
-            signRead = ((char) reader.read());
-            if (signRead == LINE_MARKER.charAt(0) || signRead == 0xFFFF) break;
-            stringBuilder.append(signRead);
-        }
-        return stringBuilder.toString();
-    }
-
 }
 
 

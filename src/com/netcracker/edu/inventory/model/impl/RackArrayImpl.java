@@ -15,10 +15,10 @@ public class RackArrayImpl<T> implements Rack, Serializable {
     static protected Logger LOGGER = Logger.getLogger(RackArrayImpl.class.getName());
 
     protected Device[] arrayImpl;
-    private final Class clazz;
+    private final Class<T> clazz;
     protected Location location;
 
-    public RackArrayImpl(int size, Class clazz) {
+    public RackArrayImpl(int size, Class<T> clazz) {
         if (clazz == null) {
             throw new IllegalArgumentException("Type cannot be: " + clazz);
         }
@@ -36,7 +36,7 @@ public class RackArrayImpl<T> implements Rack, Serializable {
 
 
     public RackArrayImpl(int size) {
-        this(size, Device.class);
+        this(size, (Class<T>) Device.class);
     }
 
     public int getSize() {
