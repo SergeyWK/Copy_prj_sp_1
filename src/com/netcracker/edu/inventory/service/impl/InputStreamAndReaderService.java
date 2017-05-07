@@ -1,6 +1,7 @@
 package com.netcracker.edu.inventory.service.impl;
 
 import com.netcracker.edu.inventory.model.Device;
+import com.netcracker.edu.inventory.model.FillableEntity;
 import com.netcracker.edu.inventory.model.Rack;
 import com.netcracker.edu.inventory.model.impl.*;
 import com.netcracker.edu.location.Location;
@@ -61,7 +62,31 @@ public class InputStreamAndReaderService {
     }
 
     public void readFieldsOfDevice(Device device, DataInputStream dataInput) throws IOException {
-        int deviceIn = dataInput.readInt();
+        FillableEntity.Field fields[] = new FillableEntity.Field[device.getAllFieldsToArray().length];
+        fields[0] = new FillableEntity.Field(Integer.class, dataInput.readInt());
+        fields[1] = new FillableEntity.Field(String.class, readValue(dataInput.readUTF()));
+        fields[2] = new FillableEntity.Field(String.class, readValue(dataInput.readUTF()));
+        fields[3] = new FillableEntity.Field(String.class, readValue(dataInput.readUTF()));
+        long deviceProductionDate = dataInput.readLong();
+        Date date = deviceProductionDate == -1 ? null : new Date(deviceProductionDate);
+        fields[4] = new FillableEntity.Field(Date.class, date);
+        if (device instanceof Battery) {
+            fields[5] = new FillableEntity.Field(Integer.class, dataInput.readInt());
+        }
+        if (device instanceof Router) {
+            fields[5] = new FillableEntity.Field(Integer.class, dataInput.readInt());
+            if (device instanceof Switch) {
+                fields[6] = new FillableEntity.Field(Integer.class, dataInput.readInt());
+            }
+            if (device instanceof WifiRouter) {
+                fields[6] = new FillableEntity.Field(String.class, dataInput.readUTF());
+            }
+        }
+        device.fillAllFields(fields);
+    }
+
+  /*  public void readFieldsOfDevice(Device device, DataInputStream dataInput) throws IOException {
+       *//* int deviceIn = dataInput.readInt();
         String deviceType = readValue(dataInput.readUTF());
         String deviceModel = readValue(dataInput.readUTF());
         String deviceManufacturer = readValue(dataInput.readUTF());
@@ -76,15 +101,16 @@ public class InputStreamAndReaderService {
             ((Battery) device).setChargeVolume(dataInput.readInt());
         }
         if (device instanceof Router) {
+            ((Router) device).setDataRate(dataInput.readInt());
             if (device instanceof Switch) {
                 ((Switch) device).setNumberOfPorts(dataInput.readInt());
             }
             if (device instanceof WifiRouter) {
                 ((WifiRouter) device).setSecurityProtocol(readValue(dataInput.readUTF()));
             }
-            ((Router) device).setDataRate(dataInput.readInt());
-        }
-    }
+
+        }*//*
+    }*/
 
     public String readValue(String value) {
         if (LINE_MARKER.equals(value)) {

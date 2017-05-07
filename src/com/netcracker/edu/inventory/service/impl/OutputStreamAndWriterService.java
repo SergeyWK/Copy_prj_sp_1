@@ -50,7 +50,7 @@ public class OutputStreamAndWriterService {
                     }
                 }
             }
-        /*    dataOutputStream.writeUTF(device.getClass().getName());
+        /*  dataOutputStream.writeUTF(device.getClass().getName());
             dataOutputStream.writeInt(device.getIn());
             dataOutputStream.writeUTF(validObjectDevice(device.getType()));
             dataOutputStream.writeUTF(validObjectDevice(device.getModel()));
