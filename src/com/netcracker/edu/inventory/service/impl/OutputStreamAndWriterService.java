@@ -2,6 +2,7 @@ package com.netcracker.edu.inventory.service.impl;
 
 import com.netcracker.edu.inventory.exception.DeviceValidationException;
 import com.netcracker.edu.inventory.model.Device;
+import com.netcracker.edu.inventory.model.FillableEntity;
 import com.netcracker.edu.inventory.model.Rack;
 import com.netcracker.edu.inventory.model.impl.Battery;
 import com.netcracker.edu.inventory.model.impl.Router;
@@ -9,6 +10,7 @@ import com.netcracker.edu.inventory.model.impl.Switch;
 import com.netcracker.edu.inventory.model.impl.WifiRouter;
 
 import java.io.*;
+import java.util.Date;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -36,6 +38,19 @@ public class OutputStreamAndWriterService {
             }
             DataOutputStream dataOutputStream = new DataOutputStream(outputStream);
             dataOutputStream.writeUTF(device.getClass().getName());
+            FillableEntity.Field fields[] = device.getAllFieldsToArray();
+            for (FillableEntity.Field field : fields) {
+                if (field.getType() != null) {
+                    if (Integer.class.isAssignableFrom(field.getType())) {
+                        dataOutputStream.writeInt((Integer) field.getValue());
+                    } else if (String.class.isAssignableFrom(field.getType())) {
+                        dataOutputStream.writeUTF(validObjectDevice((String) field.getValue()));
+                    } else if (Date.class.isAssignableFrom(field.getType())) {
+                        dataOutputStream.writeLong(field.getValue() == null ? -1 : ((Date) field.getValue()).getTime());
+                    }
+                }
+            }
+        /*    dataOutputStream.writeUTF(device.getClass().getName());
             dataOutputStream.writeInt(device.getIn());
             dataOutputStream.writeUTF(validObjectDevice(device.getType()));
             dataOutputStream.writeUTF(validObjectDevice(device.getModel()));
@@ -52,10 +67,10 @@ public class OutputStreamAndWriterService {
                     dataOutputStream.writeUTF(validObjectDevice(((WifiRouter) device).getSecurityProtocol()));
                 }
                 dataOutputStream.writeInt(((Router) device).getDataRate());
+            }*/
+                dataOutputStream.flush();
             }
-            dataOutputStream.flush();
         }
-    }
 
     public String validObjectDevice(String type) {
         if (type == null) {
