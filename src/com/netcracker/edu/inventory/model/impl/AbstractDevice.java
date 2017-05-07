@@ -77,9 +77,47 @@ public abstract class AbstractDevice implements Device, Serializable {
     }
 
     public void fillAllFields(Field[] fields) {
+        if (fields[0].getType() != null) {
+            if (Integer.class.isAssignableFrom(fields[0].getType())) {
+                int in = (Integer) fields[0].getValue();
+                if (in > 0) {
+                    this.setIn(in);
+                }
+            }
+        }
+        if (fields[1].getType() != null) {
+            if (String.class.isAssignableFrom(fields[1].getType())) {
+                String type = (String) fields[1].getValue();
+                this.setType(type);
+            }
+        }
+        if (fields[2].getType() != null) {
+            if (String.class.isAssignableFrom(fields[2].getType())) {
+                String model = (String) fields[2].getValue();
+                this.setModel(model);
+            }
+        }
+        if (fields[3].getType() != null) {
+            if (String.class.isAssignableFrom(fields[3].getType())) {
+                String manufacturer = (String) fields[3].getValue();
+                this.setManufacturer(manufacturer);
+            }
+        }
+        if (fields[4].getType() != null) {
+            if (Date.class.isAssignableFrom(fields[4].getType())) {
+                Date productionDate = (Date) fields[4].getValue();
+                this.setProductionDate(productionDate);
+            }
+        }
     }
 
     public Field[] getAllFieldsToArray() {
-        return new Field[0];
+        Field fields[] = new Field[5];
+        fields[0] = new Field(Integer.class, this.getIn());
+        fields[1] = new Field(String.class, this.getType());
+        fields[2] = new Field(String.class, this.getModel());
+        fields[3] = new Field(String.class, this.getManufacturer());
+        fields[4] = new Field(Date.class, this.getProductionDate());
+        return fields;
     }
 }
