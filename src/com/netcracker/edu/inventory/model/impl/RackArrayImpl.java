@@ -10,11 +10,11 @@ import java.io.Serializable;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class RackArrayImpl<T> implements Rack, Serializable {
+public class RackArrayImpl<T extends Device> implements Rack<T>, Serializable {
 
     static protected Logger LOGGER = Logger.getLogger(RackArrayImpl.class.getName());
 
-    protected Device[] arrayImpl;
+    protected  T[] arrayImpl;
     private final Class<T> clazz;
     protected Location location;
 
@@ -23,7 +23,7 @@ public class RackArrayImpl<T> implements Rack, Serializable {
             throw new IllegalArgumentException("Type cannot be: " + clazz);
         }
         if (size >= 0) {
-            this.arrayImpl = new Device[size];
+            this.arrayImpl = (T[]) new Device[size];
         } else {
             IllegalArgumentException illegalArgumentException =
                     new IllegalArgumentException("Rack size should not be negative");
@@ -66,14 +66,14 @@ public class RackArrayImpl<T> implements Rack, Serializable {
     }*/
 
 
-    public Device getDevAtSlot(int index) {
+    public T getDevAtSlot(int index) {
         if (checkIndex(index) && arrayImpl[index] != null) {
             return arrayImpl[index];
         }
         return null;
     }
 
-    public boolean insertDevToSlot(Device device, int index) {
+    public boolean insertDevToSlot(T device, int index) {
         if (checkIndex(index) && (!new ServiceImpl().isValidDeviceForInsertToRack(device))) {
             DeviceValidationException deviceValidationException =
                     new DeviceValidationException("Rack.insertDevToSlot", device);
@@ -92,9 +92,9 @@ public class RackArrayImpl<T> implements Rack, Serializable {
         return false;
     }
 
-    public Device removeDevFromSlot(int index) {
+    public T removeDevFromSlot(int index) {
         if (checkIndex(index) && arrayImpl[index] != null) {
-            Device removedDevice = arrayImpl[index];
+            T removedDevice = arrayImpl[index];
             arrayImpl[index] = null;
             return removedDevice;
         }
@@ -103,7 +103,7 @@ public class RackArrayImpl<T> implements Rack, Serializable {
 
     }
 
-    public Device getDevByIN(int in) {
+    public T getDevByIN(int in) {
         for (int i = 0; i < arrayImpl.length; i++) {
             if (arrayImpl[i] != null && in == arrayImpl[i].getIn()) {
                 return arrayImpl[i];
@@ -137,9 +137,9 @@ public class RackArrayImpl<T> implements Rack, Serializable {
         return (Device[]) list.toArray(new Device[list.size()]);
     }*/
 
-    public Device[] getAllDeviceAsArray() {
+    public T[] getAllDeviceAsArray() {
         int device = 0;
-        Device[] devices = new Device[arrayImpl.length - getFreeSize()];
+        T[] devices = (T[]) new Device[arrayImpl.length - getFreeSize()];
         for (int i = 0; i < arrayImpl.length; i++) {
             if (arrayImpl[i] != null) {
                 devices[device] = arrayImpl[i];

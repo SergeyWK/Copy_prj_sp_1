@@ -62,7 +62,7 @@ public class InputStreamAndReaderService {
     }
 
     public void readFieldsOfDevice(Device device, DataInputStream dataInput) throws IOException {
-        FillableEntity.Field fields[] = new FillableEntity.Field[device.getAllFieldsToArray().length];
+        FillableEntity.Field[] fields = new FillableEntity.Field[device.getAllFieldsToArray().length];
         fields[0] = new FillableEntity.Field(Integer.class, dataInput.readInt());
         fields[1] = new FillableEntity.Field(String.class, readValue(dataInput.readUTF()));
         fields[2] = new FillableEntity.Field(String.class, readValue(dataInput.readUTF()));
@@ -86,7 +86,7 @@ public class InputStreamAndReaderService {
     }
 
   /*  public void readFieldsOfDevice(Device device, DataInputStream dataInput) throws IOException {
-       *//* int deviceIn = dataInput.readInt();
+        int deviceIn = dataInput.readInt();
         String deviceType = readValue(dataInput.readUTF());
         String deviceModel = readValue(dataInput.readUTF());
         String deviceManufacturer = readValue(dataInput.readUTF());
@@ -109,7 +109,7 @@ public class InputStreamAndReaderService {
                 ((WifiRouter) device).setSecurityProtocol(readValue(dataInput.readUTF()));
             }
 
-        }*//*
+        }
     }*/
 
     public String readValue(String value) {

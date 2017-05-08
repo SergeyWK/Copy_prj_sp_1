@@ -4,10 +4,6 @@ import com.netcracker.edu.inventory.exception.DeviceValidationException;
 import com.netcracker.edu.inventory.model.Device;
 import com.netcracker.edu.inventory.model.FillableEntity;
 import com.netcracker.edu.inventory.model.Rack;
-import com.netcracker.edu.inventory.model.impl.Battery;
-import com.netcracker.edu.inventory.model.impl.Router;
-import com.netcracker.edu.inventory.model.impl.Switch;
-import com.netcracker.edu.inventory.model.impl.WifiRouter;
 
 import java.io.*;
 import java.util.Date;
@@ -68,9 +64,9 @@ public class OutputStreamAndWriterService {
                 }
                 dataOutputStream.writeInt(((Router) device).getDataRate());
             }*/
-                dataOutputStream.flush();
-            }
+            dataOutputStream.flush();
         }
+    }
 
     public String validObjectDevice(String type) {
         if (type == null) {
@@ -81,6 +77,49 @@ public class OutputStreamAndWriterService {
     }
 
     public void writeDevice(Device device, Writer writer) throws IOException {
+        if (device != null) {
+            if (!new ValidationService().isValidDeviceForWriteToStream(device)) {
+                DeviceValidationException deviceValidationException =
+                        new DeviceValidationException("DeviceService.writeDevice.");
+                LOGGER.log(Level.SEVERE, deviceValidationException.getMessage() + device, deviceValidationException);
+                throw deviceValidationException;
+            }
+            if (writer == null) {
+                IllegalArgumentException illegalArgumentException = new IllegalArgumentException("Writer stream can't be: ");
+                LOGGER.log(Level.SEVERE, illegalArgumentException.getMessage() + writer, illegalArgumentException);
+                throw illegalArgumentException;
+            }
+            BufferedWriter bufferedWriter = new BufferedWriter(writer);
+            StringBuffer devString = new StringBuffer(device.getClass().getName() + LINE_MARKER);
+            FillableEntity.Field fields[] = device.getAllFieldsToArray();
+            for (FillableEntity.Field field : fields) {
+                if (field.getType() != null) {
+                    if (Integer.class.isAssignableFrom(field.getType())) {
+                        devString.append(field.getValue()).append(SPACE_SEPARATOR + STRING_TOKEN);
+                    } else if (String.class.isAssignableFrom(field.getType())) {
+                        devString.append(appendDeviceFields((String) field.getValue()));
+                    } else if (Date.class.isAssignableFrom(field.getType())) {
+                        devString.append(String.valueOf(field.getValue() == null ? SPACE_SEPARATOR + (-1) : SPACE_SEPARATOR +
+                                ((Date) field.getValue()).getTime()) + SPACE_SEPARATOR + STRING_TOKEN);
+                    }
+                }
+            }
+            devString.append(LINE_MARKER);
+            bufferedWriter.write(devString.toString());
+            System.out.println(devString);
+            bufferedWriter.flush();
+        }
+    }
+
+    public String appendDeviceFields(String type) {
+        if (type == null) {
+            return SPACE_SEPARATOR + STRING_TOKEN;
+        } else {
+            return SPACE_SEPARATOR + type + SPACE_SEPARATOR + STRING_TOKEN;
+        }
+    }
+
+   /* public void writeDevice(Device device, Writer writer) throws IOException {
         if (device != null) {
             if (!new ValidationService().isValidDeviceForWriteToStream(device)) {
                 DeviceValidationException deviceValidationException =
@@ -116,17 +155,10 @@ public class OutputStreamAndWriterService {
             }
             devString.append(LINE_MARKER);
             bufferedWriter.write(devString.toString());
+            System.out.println(devString);
             bufferedWriter.flush();
         }
-    }
-
-    public String appendDeviceFields(String type) {
-        if (type == null) {
-            return SPACE_SEPARATOR + STRING_TOKEN;
-        } else {
-            return SPACE_SEPARATOR + type + SPACE_SEPARATOR + STRING_TOKEN;
-        }
-    }
+    }*/
 
     public void outputRack(Rack rack, OutputStream outputStream) throws IOException {
         if (rack != null) {
