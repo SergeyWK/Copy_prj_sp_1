@@ -18,7 +18,6 @@ public class OutputStreamAndWriterService {
     static final String STRING_TOKEN = "|";
     static final String SPACE_SEPARATOR = " ";
 
-
     public void outputDevice(Device device, OutputStream outputStream) throws IOException {
         if (device != null) {
             if (!new ValidationService().isValidDeviceForOutputToStream(device)) {

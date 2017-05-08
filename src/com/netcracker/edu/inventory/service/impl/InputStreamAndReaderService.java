@@ -62,8 +62,10 @@ public class InputStreamAndReaderService {
     }
 
     public void readFieldsOfDevice(Device device, DataInputStream dataInput) throws IOException {
-        FillableEntity.Field[] fields = new FillableEntity.Field[device.getAllFieldsToArray().length];
 
+
+
+        FillableEntity.Field[] fields = new FillableEntity.Field[device.getAllFieldsToArray().length];
         fields[0] = new FillableEntity.Field(Integer.class, dataInput.readInt());
         fields[1] = new FillableEntity.Field(String.class, readValue(dataInput.readUTF()));
         fields[2] = new FillableEntity.Field(String.class, readValue(dataInput.readUTF()));
