@@ -106,14 +106,14 @@ public class InputStreamAndReaderService {
     }
 
     public void readStringFieldsOfDevice(Device device, String deviceFields) throws IOException {
-        StringTokenizer deviceField = new StringTokenizer(deviceFields, " |");
-        FillableEntity.Field fields[] = device.getAllFieldsToArray();
+        StringTokenizer deviceField = new StringTokenizer(deviceFields, STRING_TOKEN);
+        FillableEntity.Field[] fields = device.getAllFieldsToArray();
         for (int i = 0; i < fields.length; i++) {
             if (Integer.class.isAssignableFrom(fields[i].getType())) {
                 fields[i].setValue(Integer.parseInt(deviceField.nextToken().trim()));
-                if (i == 0) {
+                /*if (i == 0) {
                     deviceField.nextToken(STRING_TOKEN);
-                }
+                }*/
                 System.out.println(fields[i].getValue());
             } else if (String.class.isAssignableFrom(fields[i].getType())) {
                 String stringValue = deviceField.nextToken(STRING_TOKEN);
