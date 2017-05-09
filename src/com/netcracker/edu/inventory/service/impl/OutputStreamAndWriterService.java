@@ -4,6 +4,10 @@ import com.netcracker.edu.inventory.exception.DeviceValidationException;
 import com.netcracker.edu.inventory.model.Device;
 import com.netcracker.edu.inventory.model.FillableEntity;
 import com.netcracker.edu.inventory.model.Rack;
+import com.netcracker.edu.inventory.model.impl.Battery;
+import com.netcracker.edu.inventory.model.impl.Router;
+import com.netcracker.edu.inventory.model.impl.Switch;
+import com.netcracker.edu.inventory.model.impl.WifiRouter;
 
 import java.io.*;
 import java.util.Date;
@@ -33,45 +37,19 @@ public class OutputStreamAndWriterService {
             }
             DataOutputStream dataOutputStream = new DataOutputStream(outputStream);
             dataOutputStream.writeUTF(device.getClass().getName());
-            FillableEntity.Field fields[] = device.getAllFieldsToArray();
-            for (FillableEntity.Field field : fields) {
-                if (field.getType() != null) {
-                    if (Integer.class.isAssignableFrom(field.getType())) {
-                        dataOutputStream.writeInt((Integer) field.getValue());
-                    } else if (String.class.isAssignableFrom(field.getType())) {
-                        dataOutputStream.writeUTF(validObjectDevice((String) field.getValue()));
-                    } else if (Date.class.isAssignableFrom(field.getType())) {
-                        dataOutputStream.writeLong(field.getValue() == null ? -1 : ((Date) field.getValue()).getTime());
+            FillableEntity.Field[] fields = device.getAllFieldsToArray();
+            for (int i = 0; i < fields.length; i++) {
+                if (fields[i].getType() != null) {
+                    if (Integer.class.isAssignableFrom(fields[i].getType())) {
+                        dataOutputStream.writeInt((Integer) fields[i].getValue());
+                    } else if (String.class.isAssignableFrom(fields[i].getType())) {
+                        dataOutputStream.writeUTF(fields[i].getValue() == null ? LINE_MARKER : ((String) fields[i].getValue()));
+                    } else if (Date.class.isAssignableFrom(fields[i].getType())) {
+                        dataOutputStream.writeLong(fields[i].getValue() == null ? -1 : ((Date) fields[i].getValue()).getTime());
                     }
                 }
             }
-        /*  dataOutputStream.writeUTF(device.getClass().getName());
-            dataOutputStream.writeInt(device.getIn());
-            dataOutputStream.writeUTF(validObjectDevice(device.getType()));
-            dataOutputStream.writeUTF(validObjectDevice(device.getModel()));
-            dataOutputStream.writeUTF(validObjectDevice(device.getManufacturer()));
-            dataOutputStream.writeLong(device.getProductionDate() == null ? -1 : device.getProductionDate().getTime());
-            if (device instanceof Battery) {
-                dataOutputStream.writeInt(((Battery) device).getChargeVolume());
-            }
-            if (device instanceof Router) {
-                if (device instanceof Switch) {
-                    dataOutputStream.writeInt(((Switch) device).getNumberOfPorts());
-                }
-                if (device instanceof WifiRouter) {
-                    dataOutputStream.writeUTF(validObjectDevice(((WifiRouter) device).getSecurityProtocol()));
-                }
-                dataOutputStream.writeInt(((Router) device).getDataRate());
-            }*/
             dataOutputStream.flush();
-        }
-    }
-
-    public String validObjectDevice(String type) {
-        if (type == null) {
-            return LINE_MARKER;
-        } else {
-            return type;
         }
     }
 
@@ -91,49 +69,25 @@ public class OutputStreamAndWriterService {
             BufferedWriter bufferedWriter = new BufferedWriter(writer);
             StringBuffer devString = new StringBuffer(device.getClass().getName() + LINE_MARKER);
             FillableEntity.Field fields[] = device.getAllFieldsToArray();
-            for (FillableEntity.Field field : fields) {
-                if (field.getType() != null) {
-                    if (Integer.class.isAssignableFrom(field.getType())) {
-                        devString.append(field.getValue()).append(SPACE_SEPARATOR + STRING_TOKEN);
-                    } else if (String.class.isAssignableFrom(field.getType())) {
-                        devString.append(appendDeviceFields((String) field.getValue()));
-                    } else if (Date.class.isAssignableFrom(field.getType())) {
-                        devString.append(String.valueOf(field.getValue() == null ? SPACE_SEPARATOR + (-1) : SPACE_SEPARATOR +
-                                ((Date) field.getValue()).getTime()) + SPACE_SEPARATOR + STRING_TOKEN);
+            for (int i = 0; i < fields.length; i++) {
+                if (fields[i].getType() != null) {
+                    if (Integer.class.isAssignableFrom(fields[i].getType())) {
+                        if (i == 0) {
+                            devString.append(fields[i].getValue()).append(SPACE_SEPARATOR + STRING_TOKEN);
+                        } else {
+                            devString.append(SPACE_SEPARATOR).append(fields[i].getValue()).append(SPACE_SEPARATOR + STRING_TOKEN);
+                        }
+                        //   devString.append(fields[i].getValue()).append(SPACE_SEPARATOR + STRING_TOKEN);
+                    } else if (String.class.isAssignableFrom(fields[i].getType())) {
+                        devString.append(appendDeviceFields((String) fields[i].getValue()));
+                    } else if (Date.class.isAssignableFrom(fields[i].getType())) {
+                        devString.append(String.valueOf(fields[i].getValue() == null ? SPACE_SEPARATOR + (-1) : SPACE_SEPARATOR +
+                                ((Date) fields[i].getValue()).getTime()) + SPACE_SEPARATOR + STRING_TOKEN);
                     }
                 }
             }
-            devString.append(LINE_MARKER);
-            bufferedWriter.write(devString.toString());
-            System.out.println(devString);
-            bufferedWriter.flush();
-        }
-    }
 
-    public String appendDeviceFields(String type) {
-        if (type == null) {
-            return SPACE_SEPARATOR + STRING_TOKEN;
-        } else {
-            return SPACE_SEPARATOR + type + SPACE_SEPARATOR + STRING_TOKEN;
-        }
-    }
-
-   /* public void writeDevice(Device device, Writer writer) throws IOException {
-        if (device != null) {
-            if (!new ValidationService().isValidDeviceForWriteToStream(device)) {
-                DeviceValidationException deviceValidationException =
-                        new DeviceValidationException("DeviceService.writeDevice.");
-                LOGGER.log(Level.SEVERE, deviceValidationException.getMessage() + device, deviceValidationException);
-                throw deviceValidationException;
-            }
-            if (writer == null) {
-                IllegalArgumentException illegalArgumentException = new IllegalArgumentException("Writer stream can't be: ");
-                LOGGER.log(Level.SEVERE, illegalArgumentException.getMessage() + writer, illegalArgumentException);
-                throw illegalArgumentException;
-            }
-            BufferedWriter bufferedWriter = new BufferedWriter(writer);
-            StringBuffer devString = new StringBuffer(device.getClass().getName() + LINE_MARKER);
-            devString.append(device.getIn()).append(SPACE_SEPARATOR + STRING_TOKEN);
+         /*   devString.append(device.getIn()).append(SPACE_SEPARATOR + STRING_TOKEN);
             devString.append(appendDeviceFields(device.getType()));
             devString.append(appendDeviceFields(device.getModel()));
             devString.append(appendDeviceFields(device.getManufacturer()));
@@ -151,13 +105,23 @@ public class OutputStreamAndWriterService {
             if (WifiRouter.class.isAssignableFrom(device.getClass())) {
                 WifiRouter wifiDevice = (WifiRouter) device;
                 devString.append(appendDeviceFields(((wifiDevice.getSecurityProtocol()))));
-            }
+            }*/
+
+
             devString.append(LINE_MARKER);
             bufferedWriter.write(devString.toString());
             System.out.println(devString);
             bufferedWriter.flush();
         }
-    }*/
+    }
+
+    public String appendDeviceFields(String type) {
+        if (type == null) {
+            return SPACE_SEPARATOR + STRING_TOKEN;
+        } else {
+            return SPACE_SEPARATOR + type + SPACE_SEPARATOR + STRING_TOKEN;
+        }
+    }
 
     public void outputRack(Rack rack, OutputStream outputStream) throws IOException {
         if (rack != null) {

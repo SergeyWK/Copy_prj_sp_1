@@ -62,64 +62,25 @@ public class InputStreamAndReaderService {
     }
 
     public void readFieldsOfDevice(Device device, DataInputStream dataInput) throws IOException {
-
-
-
-        FillableEntity.Field[] fields = new FillableEntity.Field[device.getAllFieldsToArray().length];
-        fields[0] = new FillableEntity.Field(Integer.class, dataInput.readInt());
-        fields[1] = new FillableEntity.Field(String.class, readValue(dataInput.readUTF()));
-        fields[2] = new FillableEntity.Field(String.class, readValue(dataInput.readUTF()));
-        fields[3] = new FillableEntity.Field(String.class, readValue(dataInput.readUTF()));
-        long deviceProductionDate = dataInput.readLong();
-        Date date = deviceProductionDate == -1 ? null : new Date(deviceProductionDate);
-        fields[4] = new FillableEntity.Field(Date.class, date);
-        if (device instanceof Battery) {
-            fields[5] = new FillableEntity.Field(Integer.class, dataInput.readInt());
-        }
-        if (device instanceof Router) {
-            fields[5] = new FillableEntity.Field(Integer.class, dataInput.readInt());
-            if (device instanceof Switch) {
-                fields[6] = new FillableEntity.Field(Integer.class, dataInput.readInt());
+        FillableEntity.Field[] fields = device.getAllFieldsToArray();
+        for (int i = 0; i < fields.length; i++) {
+            if (Integer.class.isAssignableFrom(fields[i].getType())) {
+                fields[i].setValue(dataInput.readInt());
             }
-            if (device instanceof WifiRouter) {
-                fields[6] = new FillableEntity.Field(String.class, dataInput.readUTF());
+            if (String.class.isAssignableFrom(fields[i].getType())) {
+                String stringValue = dataInput.readUTF();
+                fields[i].setValue(stringValue.equals(LINE_MARKER) ? null : stringValue);
+            }
+            if (Date.class.isAssignableFrom(fields[i].getType())) {
+                Long date = dataInput.readLong();
+                if (date != -1) {
+                    fields[i].setValue(new Date(date));
+                } else {
+                    fields[i].setValue(null);
+                }
             }
         }
         device.fillAllFields(fields);
-    }
-
-  /*  public void readFieldsOfDevice(Device device, DataInputStream dataInput) throws IOException {
-        int deviceIn = dataInput.readInt();
-        String deviceType = readValue(dataInput.readUTF());
-        String deviceModel = readValue(dataInput.readUTF());
-        String deviceManufacturer = readValue(dataInput.readUTF());
-        long deviceProductionDate = dataInput.readLong();
-        Date date = deviceProductionDate == -1 ? null : new Date(deviceProductionDate);
-        device.setIn(deviceIn);
-        device.setType(deviceType);
-        device.setModel(deviceModel);
-        device.setManufacturer(deviceManufacturer);
-        device.setProductionDate(date);
-        if (device instanceof Battery) {
-            ((Battery) device).setChargeVolume(dataInput.readInt());
-        }
-        if (device instanceof Router) {
-            ((Router) device).setDataRate(dataInput.readInt());
-            if (device instanceof Switch) {
-                ((Switch) device).setNumberOfPorts(dataInput.readInt());
-            }
-            if (device instanceof WifiRouter) {
-                ((WifiRouter) device).setSecurityProtocol(readValue(dataInput.readUTF()));
-            }
-
-        }
-    }*/
-
-    public String readValue(String value) {
-        if (LINE_MARKER.equals(value)) {
-            return null;
-        }
-        return value;
     }
 
     public Device readDevice(Reader reader) throws IOException, ClassNotFoundException {
@@ -146,7 +107,33 @@ public class InputStreamAndReaderService {
 
     public void readStringFieldsOfDevice(Device device, String deviceFields) throws IOException {
         StringTokenizer deviceField = new StringTokenizer(deviceFields, " |");
-        device.setIn(Integer.parseInt(deviceField.nextToken()));
+        FillableEntity.Field fields[] = device.getAllFieldsToArray();
+        for (int i = 0; i < fields.length; i++) {
+            if (Integer.class.isAssignableFrom(fields[i].getType())) {
+                fields[i].setValue(Integer.parseInt(deviceField.nextToken().trim()));
+                if (i == 0) {
+                    deviceField.nextToken(STRING_TOKEN);
+                }
+                System.out.println(fields[i].getValue());
+            } else if (String.class.isAssignableFrom(fields[i].getType())) {
+                String stringValue = deviceField.nextToken(STRING_TOKEN);
+                fields[i].setValue(stringValue.equals(SPACE_SEPARATOR) ? null : stringValue.substring(1, stringValue.length() - 1));
+                System.out.println(fields[i].getValue());
+            } else if (Date.class.isAssignableFrom(fields[i].getType())) {
+                String devDate = deviceField.nextToken(STRING_TOKEN);
+                if (!devDate.equals(SPACE_SEPARATOR)) {
+                    Long date = Long.parseLong(devDate.trim());
+                    if (date != -1) {
+                        fields[i].setValue(new Date(date));
+                        System.out.println(fields[i].getValue());
+                    } else {
+                        fields[i].setValue(null);
+                    }
+                }
+            }
+        }
+        device.fillAllFields(fields);
+       /* device.setIn(Integer.parseInt(deviceField.nextToken()));
         deviceField.nextToken(STRING_TOKEN);
         String devType = deviceField.nextToken(STRING_TOKEN);
         device.setType(devType.equals(SPACE_SEPARATOR) ? null : devType.substring(1, devType.length() - 1));
@@ -185,7 +172,7 @@ public class InputStreamAndReaderService {
             } else {
                 ((WifiRouter) device).setSecurityProtocol(null);
             }
-        }
+        }*/
     }
 
     public String readStringFromBuffer(Reader reader) throws IOException {
