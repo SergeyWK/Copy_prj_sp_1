@@ -7,13 +7,13 @@ import com.netcracker.edu.inventory.model.Rack;
 
 
 
-
-
-
 import java.io.*;
 import java.util.Date;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+
+
 
 public class OutputStreamAndWriterService {
 
