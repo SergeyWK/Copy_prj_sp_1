@@ -77,7 +77,6 @@ public class OutputStreamAndWriterService {
                         } else {
                             devString.append(SPACE_SEPARATOR).append(fields[i].getValue()).append(SPACE_SEPARATOR + STRING_TOKEN);
                         }
-                        //   devString.append(fields[i].getValue()).append(SPACE_SEPARATOR + STRING_TOKEN);
                     } else if (String.class.isAssignableFrom(fields[i].getType())) {
                         devString.append(appendDeviceFields((String) fields[i].getValue()));
                     } else if (Date.class.isAssignableFrom(fields[i].getType())) {
@@ -86,28 +85,6 @@ public class OutputStreamAndWriterService {
                     }
                 }
             }
-
-         /*   devString.append(device.getIn()).append(SPACE_SEPARATOR + STRING_TOKEN);
-            devString.append(appendDeviceFields(device.getType()));
-            devString.append(appendDeviceFields(device.getModel()));
-            devString.append(appendDeviceFields(device.getManufacturer()));
-            devString.append(String.valueOf(device.getProductionDate() == null ? SPACE_SEPARATOR + (-1) : SPACE_SEPARATOR +
-                    device.getProductionDate().getTime()) + SPACE_SEPARATOR + STRING_TOKEN);
-            if (Battery.class.isAssignableFrom(device.getClass())) {
-                devString.append(appendDeviceFields(String.valueOf((((Battery) device)).getChargeVolume())));
-            }
-            if (Router.class.isAssignableFrom((device.getClass()))) {
-                devString.append(appendDeviceFields(String.valueOf(((Router) device).getDataRate())));
-            }
-            if (Switch.class.isAssignableFrom(device.getClass())) {
-                devString.append(appendDeviceFields(String.valueOf((((Switch) device)).getNumberOfPorts())));
-            }
-            if (WifiRouter.class.isAssignableFrom(device.getClass())) {
-                WifiRouter wifiDevice = (WifiRouter) device;
-                devString.append(appendDeviceFields(((wifiDevice.getSecurityProtocol()))));
-            }*/
-
-
             devString.append(LINE_MARKER);
             bufferedWriter.write(devString.toString());
             System.out.println(devString);
