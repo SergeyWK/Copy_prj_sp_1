@@ -20,6 +20,8 @@ public class InputStreamAndReaderService {
 
     static protected Logger LOGGER = Logger.getLogger(InputStreamAndReaderService.class.getName());
 
+
+    
     static final String LINE_MARKER = "\n";
     static final String STRING_TOKEN = "|";
     static final String SPACE_SEPARATOR = " ";
@@ -111,21 +113,15 @@ public class InputStreamAndReaderService {
         for (int i = 0; i < fields.length; i++) {
             if (Integer.class.isAssignableFrom(fields[i].getType())) {
                 fields[i].setValue(Integer.parseInt(deviceField.nextToken().trim()));
-                /*if (i == 0) {
-                    deviceField.nextToken(STRING_TOKEN);
-                }*/
-                System.out.println(fields[i].getValue());
             } else if (String.class.isAssignableFrom(fields[i].getType())) {
                 String stringValue = deviceField.nextToken(STRING_TOKEN);
                 fields[i].setValue(stringValue.equals(SPACE_SEPARATOR) ? null : stringValue.substring(1, stringValue.length() - 1));
-                System.out.println(fields[i].getValue());
             } else if (Date.class.isAssignableFrom(fields[i].getType())) {
                 String devDate = deviceField.nextToken(STRING_TOKEN);
                 if (!devDate.equals(SPACE_SEPARATOR)) {
                     Long date = Long.parseLong(devDate.trim());
                     if (date != -1) {
                         fields[i].setValue(new Date(date));
-                        System.out.println(fields[i].getValue());
                     } else {
                         fields[i].setValue(null);
                     }
@@ -133,6 +129,7 @@ public class InputStreamAndReaderService {
             }
         }
         device.fillAllFields(fields);
+    }
        /* device.setIn(Integer.parseInt(deviceField.nextToken()));
         deviceField.nextToken(STRING_TOKEN);
         String devType = deviceField.nextToken(STRING_TOKEN);
@@ -173,7 +170,7 @@ public class InputStreamAndReaderService {
                 ((WifiRouter) device).setSecurityProtocol(null);
             }
         }*/
-    }
+
 
     public String readStringFromBuffer(Reader reader) throws IOException {
         char signRead;
