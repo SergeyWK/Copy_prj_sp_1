@@ -128,46 +128,6 @@ public class InputStreamAndReaderService {
         }
         device.fillAllFields(fields);
     }
-       /* device.setIn(Integer.parseInt(deviceField.nextToken()));
-        deviceField.nextToken(STRING_TOKEN);
-        String devType = deviceField.nextToken(STRING_TOKEN);
-        device.setType(devType.equals(SPACE_SEPARATOR) ? null : devType.substring(1, devType.length() - 1));
-        String devModel = deviceField.nextToken(STRING_TOKEN);
-        device.setModel(devModel.equals(SPACE_SEPARATOR) ? null : devModel.substring(1, devModel.length() - 1));
-        String devManufacturer = deviceField.nextToken(STRING_TOKEN);
-        device.setManufacturer(devManufacturer.equals(SPACE_SEPARATOR) ? null : devManufacturer.substring(1, devManufacturer.length() - 1));
-        String devDate = deviceField.nextToken(STRING_TOKEN);
-        if (!devDate.equals(SPACE_SEPARATOR)) {
-            Long date = Long.parseLong(devDate.trim());
-            if (date != -1) {
-                device.setProductionDate(new Date(date));
-            } else {
-                device.setProductionDate(null);
-            }
-        }
-        if (Battery.class.isAssignableFrom(device.getClass())) {
-            String devChargeVolume = deviceField.nextToken(STRING_TOKEN);
-            int value = Integer.parseInt(devChargeVolume.trim());
-            ((Battery) device).setChargeVolume(value);
-        }
-        if (Router.class.isAssignableFrom(device.getClass())) {
-            String devDataRate = deviceField.nextToken(STRING_TOKEN);
-            int value = Integer.parseInt(devDataRate.trim());
-            ((Router) device).setDataRate(value);
-        }
-        if (Switch.class.isAssignableFrom(device.getClass())) {
-            String devNumOfPorts = deviceField.nextToken(STRING_TOKEN);
-            int value = Integer.parseInt(devNumOfPorts.trim());
-            ((Switch) device).setNumberOfPorts(value);
-        }
-        if (WifiRouter.class.isAssignableFrom(device.getClass())) {
-            String devSecProtocol = deviceField.nextToken(STRING_TOKEN);
-            if (!devSecProtocol.equals(SPACE_SEPARATOR)) {
-                ((WifiRouter) device).setSecurityProtocol(devSecProtocol.replaceAll("[\\s]{3}", " "));
-            } else {
-                ((WifiRouter) device).setSecurityProtocol(null);
-            }
-        }*/
 
 
     public String readStringFromBuffer(Reader reader) throws IOException {
@@ -187,10 +147,10 @@ public class InputStreamAndReaderService {
             LOGGER.log(Level.SEVERE, illegalArgumentException.getMessage() + inputStream, illegalArgumentException);
             throw illegalArgumentException;
         }
-        Location location = new com.netcracker.edu.location.impl.ServiceImpl().inputLocation(inputStream);
         DataInputStream dataInput = new DataInputStream(inputStream);
         int rackSize = dataInput.readInt();
         String rackClass = dataInput.readUTF();
+        Location location = new com.netcracker.edu.location.impl.ServiceImpl().inputLocation(inputStream);
         Rack rack;
         try {
             Class clazzRack = Class.forName(rackClass);
@@ -226,7 +186,7 @@ public class InputStreamAndReaderService {
         }
         Location location = new ServiceImpl().readLocation(reader);
         String rackOfDevice = readStringFromBuffer(reader);
-        String[] arrayRack = rackOfDevice.split(" ");
+        String[] arrayRack = rackOfDevice.split(SPACE_SEPARATOR);
         int rackSize = Integer.parseInt(arrayRack[0]);
         String rackClass = arrayRack[1];
         Rack rack;

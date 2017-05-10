@@ -5,15 +5,10 @@ import com.netcracker.edu.inventory.model.Device;
 import com.netcracker.edu.inventory.model.FillableEntity;
 import com.netcracker.edu.inventory.model.Rack;
 
-
-
 import java.io.*;
 import java.util.Date;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
-
-
 
 public class OutputStreamAndWriterService {
 
@@ -88,7 +83,6 @@ public class OutputStreamAndWriterService {
             }
             devString.append(LINE_MARKER);
             bufferedWriter.write(devString.toString());
-            System.out.println(devString);
             bufferedWriter.flush();
         }
     }
@@ -109,13 +103,13 @@ public class OutputStreamAndWriterService {
                 throw illegalArgumentException;
             }
             DataOutputStream dataOutputStream = new DataOutputStream(outputStream);
-            new com.netcracker.edu.location.impl.ServiceImpl().outputLocation(rack.getLocation(), outputStream);
             dataOutputStream.writeInt(rack.getSize());
             dataOutputStream.writeUTF(rack.getTypeOfDevices().getName());
+            new com.netcracker.edu.location.impl.ServiceImpl().outputLocation(rack.getLocation(), outputStream);
             for (int i = 0; i < rack.getSize(); i++) {
                 if (rack.getDevAtSlot(i) != null) {
                     dataOutputStream.writeUTF("");
-                    outputDevice(rack.getDevAtSlot(i), dataOutputStream);
+                    new DeviceServiceImpl().outputDevice(rack.getDevAtSlot(i), dataOutputStream);
                 } else {
                     dataOutputStream.writeUTF(LINE_MARKER);
                 }
@@ -133,13 +127,13 @@ public class OutputStreamAndWriterService {
             }
             BufferedWriter bufferedWriter = new BufferedWriter(writer);
             new com.netcracker.edu.location.impl.ServiceImpl().writeLocation(rack.getLocation(), writer);
-            StringBuffer rackString = new StringBuffer(rack.getSize() + " ");
+            StringBuffer rackString = new StringBuffer(rack.getSize() + SPACE_SEPARATOR);
             rackString.append(rack.getTypeOfDevices().getName()).append(LINE_MARKER);
             bufferedWriter.write(rackString.toString());
             bufferedWriter.flush();
             for (int i = 0; i < rack.getSize(); i++) {
                 if (rack.getDevAtSlot(i) != null) {
-                    writeDevice(rack.getDevAtSlot(i), writer);
+                    new DeviceServiceImpl().writeDevice(rack.getDevAtSlot(i), writer);
                 } else {
                     bufferedWriter.write(LINE_MARKER);
                     bufferedWriter.flush();
