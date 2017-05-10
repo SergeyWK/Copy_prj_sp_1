@@ -5,6 +5,8 @@ import com.netcracker.edu.inventory.model.Device;
 import com.netcracker.edu.inventory.model.FillableEntity;
 import com.netcracker.edu.inventory.model.Rack;
 
+
+
 import java.io.*;
 import java.util.Date;
 import java.util.logging.Level;
