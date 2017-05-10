@@ -20,8 +20,6 @@ public class InputStreamAndReaderService {
 
     static protected Logger LOGGER = Logger.getLogger(InputStreamAndReaderService.class.getName());
 
-
-
     static final String LINE_MARKER = "\n";
     static final String STRING_TOKEN = "|";
     static final String SPACE_SEPARATOR = " ";
