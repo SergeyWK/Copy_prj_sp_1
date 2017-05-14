@@ -56,16 +56,6 @@ public class RackArrayImpl<T extends Device> implements Rack<T>, Serializable {
         return freeSize;
     }
 
-    /*public int getFreeSize(){
-        int freeSize=0;
-        for (int i = 0;i<arrayImpl.length;i++){
-            if(arrayImpl[i]==null) {
-                freeSize=arrayImpl.length-1;}
-
-        }return freeSize;
-    }*/
-
-
     public T getDevAtSlot(int index) {
         if (checkIndex(index) && arrayImpl[index] != null) {
             return arrayImpl[index];
@@ -144,7 +134,7 @@ public class RackArrayImpl<T extends Device> implements Rack<T>, Serializable {
             if (arrayImpl[i] != null) {
                 devices[device] = arrayImpl[i];
                 device++;
-            }
+                    }
         }
         return devices;
     }
