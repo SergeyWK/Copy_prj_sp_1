@@ -5,6 +5,7 @@ import com.netcracker.edu.inventory.model.impl.Battery;
 import com.netcracker.edu.inventory.model.impl.Router;
 import com.netcracker.edu.inventory.model.impl.Switch;
 import com.netcracker.edu.inventory.model.impl.WifiRouter;
+import com.netcracker.edu.inventory.service.ConnectionService;
 import com.netcracker.edu.inventory.service.DeviceService;
 import com.netcracker.edu.inventory.service.RackService;
 import com.netcracker.edu.inventory.service.Service;
@@ -231,6 +232,13 @@ public class ServiceImplTest {
         DeviceService deviceService = service.getDeviceService();
 
         assertNotNull(deviceService);
+    }
+
+    @Test
+    public void getConnectionService() throws Exception {
+        ConnectionService connectionService = service.getConnectionService();
+
+        assertNotNull(connectionService);
     }
 
     @Test

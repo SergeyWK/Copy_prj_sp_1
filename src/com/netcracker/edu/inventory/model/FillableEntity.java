@@ -1,13 +1,21 @@
 package com.netcracker.edu.inventory.model;
 
+import java.util.List;
+
 /**
- * Created by oleksandr on 01.11.16.
+ * Created by makovetskyi on 01.11.16.
  */
 public interface FillableEntity {
 
+    @Deprecated
     void fillAllFields(Field[] fields);
 
+    @Deprecated
     Field[] getAllFieldsToArray();
+
+    void fillAllFields(List<Field> fields);
+
+    List<Field> getAllFields();
 
     class Field {
 

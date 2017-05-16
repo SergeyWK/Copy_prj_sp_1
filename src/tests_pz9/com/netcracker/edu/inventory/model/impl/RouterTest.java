@@ -36,6 +36,7 @@ public class RouterTest {
         assertEquals(dataRate, result);
     }
 
+    @Deprecated
     @Test
     public void testGetAndFillAllFieldsToArray() throws Exception {
         router = CreateUtilities.createRouter();
@@ -46,12 +47,31 @@ public class RouterTest {
         AssertUtilities.assertSomeDevice(router, result1);
     }
 
+    @Deprecated
     @Test
     public void testGetAndFillAllFieldsToArray_EmptyDevice() throws Exception {
         Device result1 = new Router();
         result1.fillAllFields(router.getAllFieldsToArray());
 
         AssertUtilities.assertSomeDevice(router, result1);
+    }
+
+    @Test
+    public void testGetAndFillAllFields() throws Exception {
+        router = CreateUtilities.createRouter();
+
+        Router result1 = new Router();
+        result1.fillAllFields(router.getAllFields());
+
+        AssertUtilities.assertRouter(router, result1);
+    }
+
+    @Test
+    public void testGetAndFillAllFields_EmptyDevice() throws Exception {
+        Router result1 = new Router();
+        result1.fillAllFields(router.getAllFields());
+
+        AssertUtilities.assertRouter(router, result1);
     }
 
 }

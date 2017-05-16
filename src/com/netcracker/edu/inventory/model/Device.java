@@ -8,7 +8,7 @@ import java.util.Date;
  *
  * Created by makovetskyi on 05.10.2016.
  */
-public interface Device extends FillableEntity {
+public interface Device extends NetworkElement {
     int getIn();
     void setIn(int in);
     String getType();

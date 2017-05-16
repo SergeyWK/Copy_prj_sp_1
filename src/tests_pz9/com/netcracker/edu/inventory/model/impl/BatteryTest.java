@@ -36,6 +36,7 @@ public class BatteryTest {
         assertEquals(chargeVolume, result);
     }
 
+    @Deprecated
     @Test
     public void testGetAndFillAllFieldsToArray() throws Exception {
         battery = CreateUtilities.createBattery();
@@ -46,12 +47,31 @@ public class BatteryTest {
         AssertUtilities.assertSomeDevice(battery, result1);
     }
 
+    @Deprecated
     @Test
     public void testGetAndFillAllFieldsToArray_EmptyDevice() throws Exception {
         Device result1 = new Battery();
         result1.fillAllFields(battery.getAllFieldsToArray());
 
         AssertUtilities.assertSomeDevice(battery, result1);
+    }
+
+    @Test
+    public void testGetAndFillAllFields() throws Exception {
+        battery = CreateUtilities.createBattery();
+
+        Battery result1 = new Battery();
+        result1.fillAllFields(battery.getAllFields());
+
+        AssertUtilities.assertBattery(battery, result1);
+    }
+
+    @Test
+    public void testGetAndFillAllFields_EmptyDevice() throws Exception {
+        Battery result1 = new Battery();
+        result1.fillAllFields(battery.getAllFields());
+
+        AssertUtilities.assertBattery(battery, result1);
     }
 
 }

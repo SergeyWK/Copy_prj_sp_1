@@ -1,10 +1,16 @@
 package com.netcracker.edu.inventory.model.impl;
 
+import com.netcracker.edu.inventory.model.Connection;
+import com.netcracker.edu.inventory.model.ConnectorType;
 import com.netcracker.edu.inventory.model.Device;
+
+import java.util.List;
 
 public class Switch extends Router implements Device {
 
     protected int numberOfPorts;
+    protected ConnectorType portsType;
+    protected Connection portsConnections;
 
     public int getNumberOfPorts() {
         return numberOfPorts;
@@ -12,6 +18,21 @@ public class Switch extends Router implements Device {
 
     public void setNumberOfPorts(int numberOfPorts) {
         this.numberOfPorts = numberOfPorts;
+    }
+
+    public ConnectorType getPortsType() {
+        return portsType;
+    }
+
+    public Connection getPortsConnections(int portNumber) {
+        return portsConnections;
+    }
+    public void setPortsConnections(Connection portsConnections, int portNumber) {
+        this.portsConnections = portsConnections;
+    }
+
+    public List<Connection> getAllPortConnections(){
+        return null;
     }
 
     public void fillAllFields(Field[] fields) {

@@ -4,6 +4,7 @@ package com.netcracker.edu.inventory.model.impl;
 public class WifiRouter extends Router {
 
     protected String securityProtocol;
+    protected String technologyVersion;
 
     public String getSecurityProtocol() {
         return securityProtocol;
@@ -11,6 +12,10 @@ public class WifiRouter extends Router {
 
     public void setSecurityProtocol(String securityProtocol) {
         this.securityProtocol = securityProtocol;
+    }
+
+    public String getTechnologyVersion() {
+        return technologyVersion;
     }
 
     public void fillAllFields(Field[] fields) {

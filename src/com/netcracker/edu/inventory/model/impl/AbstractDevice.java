@@ -1,9 +1,12 @@
 package com.netcracker.edu.inventory.model.impl;
 
 import com.netcracker.edu.inventory.model.Device;
+import com.netcracker.edu.inventory.model.FillableEntity;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -76,6 +79,19 @@ public abstract class AbstractDevice implements Device, Serializable {
         this.productionDate = productionDate;
     }
 
+
+    @Override
+    public void fillAllFields(List<Field> fields) {
+
+
+    }
+
+    @Override
+    public List<Field> getAllFields() {
+        return null;
+    }
+
+    @Deprecated
     public void fillAllFields(Field[] fields) {
         if (fields[0].getType() != null) {
             if (Integer.class.isAssignableFrom(fields[0].getType())) {
@@ -111,13 +127,17 @@ public abstract class AbstractDevice implements Device, Serializable {
         }
     }
 
+    @Deprecated
     public Field[] getAllFieldsToArray() {
-        Field fields[] = new Field[5];
+        /*Field fields[] = new Field[5];
         fields[0] = new Field(Integer.class, this.getIn());
         fields[1] = new Field(String.class, this.getType());
         fields[2] = new Field(String.class, this.getModel());
         fields[3] = new Field(String.class, this.getManufacturer());
-        fields[4] = new Field(Date.class, this.getProductionDate());
+        fields[4] = new Field(Date.class, this.getProductionDate());*/
+        List<Field> fieldsList = getAllFields();
+        Field[] fields = new Field[fieldsList.size()];
+        fieldsList.toArray(fields);
         return fields;
     }
 }
