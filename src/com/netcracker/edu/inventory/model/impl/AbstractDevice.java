@@ -4,10 +4,7 @@ import com.netcracker.edu.inventory.model.Device;
 import com.netcracker.edu.inventory.model.FillableEntity;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.LinkedHashMap;
-import java.util.List;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -24,16 +21,6 @@ public abstract class AbstractDevice implements Device, Serializable {
     public int getIn() {
         return in;
     }
-
-
-   /*  Version for PZ3
-   public void setIn(int in) {
-        if (in > 0 && this.in == 0) {
-            this.in = in;
-        } else {
-            System.err.println("Incorrect value:" + in + " Value must be > 0");
-        }
-    }*/
 
     public void setIn(int in) {
         if (in < 0) {
@@ -105,14 +92,48 @@ public abstract class AbstractDevice implements Device, Serializable {
     }
 
     public void fillAllFields(List<Field> fields) {
-
-
+        if (fields.get(0).getType() != null) {
+            if (Integer.class.isAssignableFrom(fields.get(0).getType())) {
+                int in = (Integer) fields.get(0).getValue();
+                if (in > 0) {
+                    this.setIn(in);
+                }
+            }
+            if (fields.get(1).getType() != null) {
+                if (String.class.isAssignableFrom(fields.get(1).getType())) {
+                    String type = (String) fields.get(1).getValue();
+                    this.setType(type);
+                }
+            }
+            if (fields.get(2).getType() != null) {
+                if (String.class.isAssignableFrom(fields.get(2).getType())) {
+                    String model = (String) fields.get(2).getValue();
+                    this.setModel(model);
+                }
+            }
+            if (fields.get(3).getType() != null) {
+                if (String.class.isAssignableFrom(fields.get(3).getType())) {
+                    String manufacturer = (String) fields.get(3).getValue();
+                    this.setManufacturer(manufacturer);
+                }
+            }
+            if (fields.get(4).getType() != null) {
+                if (Date.class.isAssignableFrom(fields.get(4).getType())) {
+                    Date productionDate = (Date) fields.get(4).getValue();
+                    this.setProductionDate(productionDate);
+                }
+            }
+        }
 
     }
 
     @Deprecated
     public void fillAllFields(Field[] fields) {
-        if (fields[0].getType() != null) {
+        List<Field> fieldsList = Arrays.asList(fields);
+        fillAllFields(fieldsList);
+        //Field[] fields = new Field[fieldsList.size()];
+
+        /*if (fields[0].getType() != null) {
             if (Integer.class.isAssignableFrom(fields[0].getType())) {
                 int in = (Integer) fields[0].getValue();
                 if (in > 0) {
@@ -143,7 +164,7 @@ public abstract class AbstractDevice implements Device, Serializable {
                 Date productionDate = (Date) fields[4].getValue();
                 this.setProductionDate(productionDate);
             }
-        }
+        }*/
     }
 }
 
