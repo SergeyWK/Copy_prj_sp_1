@@ -87,6 +87,13 @@ public interface Service {
     DeviceService getDeviceService();
 
     /**
+     * Return ConnectionService implementation
+     *
+     * @return implementation of ConnectionService interface
+     */
+    ConnectionService getConnectionService();
+
+    /**
      * Return RackService implementation
      *
      * @return implementation of RackService interface

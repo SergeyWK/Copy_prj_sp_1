@@ -1,10 +1,16 @@
 package com.netcracker.edu.inventory.model.impl;
 
 
+import com.netcracker.edu.inventory.model.Connection;
+import com.netcracker.edu.inventory.model.ConnectorType;
+
 public class WifiRouter extends Router {
 
     protected String securityProtocol;
     protected String technologyVersion;
+    protected Connection wirelessConnection;
+    protected ConnectorType wirePortType;
+    protected Connection wireConnection;
 
     public String getSecurityProtocol() {
         return securityProtocol;
@@ -16,6 +22,26 @@ public class WifiRouter extends Router {
 
     public String getTechnologyVersion() {
         return technologyVersion;
+    }
+
+    public Connection getWirelessConnection() {
+        return wirelessConnection;
+    }
+
+    public void setWirelessConnection(Connection wirelessConnection) {
+        this.wirelessConnection = wirelessConnection;
+    }
+
+    public ConnectorType getWirePortType() {
+        return wirePortType;
+    }
+
+    public Connection getWireConnection() {
+        return wireConnection;
+    }
+
+    public void setWireConnection(Connection wireConnection) {
+        this.wireConnection = wireConnection;
     }
 
     public void fillAllFields(Field[] fields) {
