@@ -10,7 +10,7 @@ public class Switch extends Router implements Device {
 
     protected int numberOfPorts;
     protected ConnectorType portsType;
-    protected Connection portsConnections;
+    protected List<Connection> portsConnections;
 
     public int getNumberOfPorts() {
         return numberOfPorts;
@@ -24,11 +24,10 @@ public class Switch extends Router implements Device {
         return portsType;
     }
 
-    public Connection getPortsConnections(int portNumber) {
-        return portsConnections;
+    public Connection getPortConnection(int portNumber) {
+        return null;
     }
-    public void setPortsConnections(Connection portsConnections, int portNumber) {
-        this.portsConnections = portsConnections;
+    public void setPortConnection(Connection connection, int portNumber) {
     }
 
     public List<Connection> getAllPortConnections(){
